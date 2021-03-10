@@ -1,14 +1,14 @@
-package com.example.fizetsihatridfigyelmeztetalkalmazs.ui.gallery;
+package com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Hozzaadas;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class GalleryViewModel extends ViewModel {
+public class HozzaadasModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public GalleryViewModel() {
+    public HozzaadasModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is gallery fragment");
     }

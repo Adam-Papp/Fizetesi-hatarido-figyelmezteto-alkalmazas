@@ -1,14 +1,14 @@
-package com.example.fizetsihatridfigyelmeztetalkalmazs.ui.slideshow;
+package com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Befizetett;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class SlideshowViewModel extends ViewModel {
+public class BefizetettViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public SlideshowViewModel() {
+    public BefizetettViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is slideshow fragment");
     }

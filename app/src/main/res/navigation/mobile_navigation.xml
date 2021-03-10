@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/nav_kezdolap"
-        android:name="com.example.fizetsihatridfigyelmeztetalkalmazs.ui.home.HomeFragment"
-        android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        android:name="com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Kezdolap.KezdolapFragment"
+        android:label="@string/menu_kezdolap"
+        tools:layout="@layout/fragment_kezdolap" />
 
     <fragment
         android:id="@+id/nav_hozzaadas"
-        android:name="com.example.fizetsihatridfigyelmeztetalkalmazs.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:name="com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Hozzaadas.HozzaadasFragment"
+        android:label="@string/menu_hozzaadas"
+        tools:layout="@layout/fragment_hozzaadas" />
 
     <fragment
         android:id="@+id/nav_befizetettSzamlak"
-        android:name="com.example.fizetsihatridfigyelmeztetalkalmazs.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:name="com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Befizetett.BefizetettFragment"
+        android:label="@string/menu_befizetett"
+        tools:layout="@layout/fragment_befizetett" />
 </navigation>
