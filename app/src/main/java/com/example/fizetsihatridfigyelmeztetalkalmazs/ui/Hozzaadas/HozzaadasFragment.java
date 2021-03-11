@@ -16,18 +16,12 @@ import com.example.fizetsihatridfigyelmeztetalkalmazs.R;
 
 public class HozzaadasFragment extends Fragment {
 
-    private HozzaadasModel hozzaadasModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        hozzaadasModel =
-                new ViewModelProvider(this).get(HozzaadasModel.class);
         View root = inflater.inflate(R.layout.fragment_hozzaadas, container, false);
-        hozzaadasModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-            }
-        });
+
+
         return root;
     }
 }

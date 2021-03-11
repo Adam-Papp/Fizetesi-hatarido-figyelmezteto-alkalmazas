@@ -16,19 +16,12 @@ import com.example.fizetsihatridfigyelmeztetalkalmazs.R;
 
 public class KezdolapFragment extends Fragment {
 
-    private KezdolapViewModel kezdolapViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        kezdolapViewModel =
-                new ViewModelProvider(this).get(KezdolapViewModel.class);
         View root = inflater.inflate(R.layout.fragment_kezdolap, container, false);
-        kezdolapViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-            }
-        });
+
+
         return root;
     }
 }
