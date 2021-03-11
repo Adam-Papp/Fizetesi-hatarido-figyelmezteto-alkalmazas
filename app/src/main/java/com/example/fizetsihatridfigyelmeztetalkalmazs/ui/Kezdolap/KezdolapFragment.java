@@ -23,11 +23,10 @@ public class KezdolapFragment extends Fragment {
         kezdolapViewModel =
                 new ViewModelProvider(this).get(KezdolapViewModel.class);
         View root = inflater.inflate(R.layout.fragment_kezdolap, container, false);
-        final TextView textView = root.findViewById(R.id.text_home);
         kezdolapViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
-                textView.setText(s);
+//                textView.setText(s);
             }
         });
         return root;
