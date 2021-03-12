@@ -45,7 +45,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         recyclerViewSzamlak.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new MyRecyclerViewAdapter(getContext(), listaSzamlak);
         adapter.setClickListener(this);
-//        recyclerViewSzamlak.setAdapter(adapter);
+        recyclerViewSzamlak.setAdapter(adapter);
 
 //        arrayAdapterSzamlak = new ArrayAdapter<Szamla>(getContext(), android.R.layout.simple_list_item_1, listaSzamlak);
 //        recyclerViewSzamlak.setAdapter(arrayAdapterSzamlak);

@@ -32,14 +32,18 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        String tetelNev = mData.get(position).getTetelNev();
-        holder.textViewTetelNev.setText(tetelNev);
+//        String tetelNev = mData.get(position).getTetelNev();
+//        holder.textViewTetelNev.setText(tetelNev);
 
-        String szamlaHatarido = mData.get(position).getSzamlaHatarido();
-        holder.textViewSzamlaHatarido.setText(szamlaHatarido);
+//        String szamlaHatarido = mData.get(position).getSzamlaHatarido();
+//        holder.textViewSzamlaHatarido.setText(szamlaHatarido);
+//
+//        String szamlaOsszeg = String.valueOf(mData.get(position).getSzamlaOsszeg());
+//        holder.textViewTetelNev.setText(szamlaOsszeg);
 
-        int szamlaOsszeg = mData.get(position).getSzamlaOsszeg();
-        holder.textViewTetelNev.setText(szamlaOsszeg);
+        holder.textViewTetelNev.setText(mData.get(position).getTetelNev());
+        holder.textViewSzamlaOsszeg.setText(String.valueOf(mData.get(position).getSzamlaOsszeg()));
+        holder.textViewSzamlaHatarido.setText(mData.get(position).getSzamlaHatarido());
     }
 
     // total number of rows
