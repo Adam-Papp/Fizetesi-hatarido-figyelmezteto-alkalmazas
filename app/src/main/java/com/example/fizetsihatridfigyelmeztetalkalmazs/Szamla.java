@@ -8,21 +8,22 @@ public class Szamla
 {
     private String tetelNev;
     private int szamlaOsszeg;
-    private Date szamlaHatarido;
+    private String szamlaHatarido;
     private String szamlaTipus;
     private String ismetlodesGyakorisag;
     private boolean elvegzett;
 
-    public Szamla(String tn, int szo, Date szh, String szt)
+    public Szamla(String tn, int szo, String szh, String szt)
     {
         tetelNev = tn;
         szamlaOsszeg = szo;
         szamlaHatarido = szh;
         szamlaTipus = szt;
+        ismetlodesGyakorisag = null;
         elvegzett = false;
     }
 
-    public Szamla(String tn, int szo, Date szh, String szt, String ig)
+    public Szamla(String tn, int szo, String szh, String szt, String ig)
     {
         tetelNev = tn;
         szamlaOsszeg = szo;
@@ -30,6 +31,17 @@ public class Szamla
         szamlaTipus = szt;
         ismetlodesGyakorisag = ig;
         elvegzett = false;
+    }
+
+    public Szamla(String tn, int szo, String szh, String szt, String ig, boolean e)
+    {
+        tetelNev = tn;
+        szamlaOsszeg = szo;
+        szamlaHatarido = szh;
+        szamlaTipus = szt;
+        ismetlodesGyakorisag = ig;
+        elvegzett = false;
+        elvegzett = e;
     }
 
     public boolean isElvegzett() {
@@ -56,11 +68,11 @@ public class Szamla
         this.szamlaOsszeg = szamlaOsszeg;
     }
 
-    public Date getSzamlaHatarido() {
+    public String getSzamlaHatarido() {
         return szamlaHatarido;
     }
 
-    public void setSzamlaHatarido(Date szamlaHatarido) {
+    public void setSzamlaHatarido(String szamlaHatarido) {
         this.szamlaHatarido = szamlaHatarido;
     }
 
@@ -80,9 +92,15 @@ public class Szamla
         this.ismetlodesGyakorisag = ismetlodesGyakorisag;
     }
 
-    @NonNull
     @Override
     public String toString() {
-        return super.toString();
+        return "Szamla{" +
+                "tetelNev='" + tetelNev + '\'' +
+                ", szamlaOsszeg=" + szamlaOsszeg +
+                ", szamlaHatarido='" + szamlaHatarido + '\'' +
+                ", szamlaTipus='" + szamlaTipus + '\'' +
+                ", ismetlodesGyakorisag='" + ismetlodesGyakorisag + '\'' +
+                ", elvegzett=" + elvegzett +
+                '}';
     }
 }
