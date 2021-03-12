@@ -20,7 +20,7 @@
         android:textSize="16sp" />
 
     <EditText
-        android:id="@+id/editTextTextPersonName"
+        android:id="@+id/editTextTetelNev"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -39,7 +39,7 @@
         android:textSize="16sp" />
 
     <EditText
-        android:id="@+id/editTextNumber"
+        android:id="@+id/editTextOsszeg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -58,7 +58,7 @@
         android:textSize="16sp" />
 
     <EditText
-        android:id="@+id/editTextDate"
+        android:id="@+id/editTextHatarido"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -73,7 +73,7 @@
         android:orientation="horizontal">
 
         <RadioButton
-            android:id="@+id/radioButton3"
+            android:id="@+id/radioButtonEgyszeri"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -82,7 +82,7 @@
             android:text="Egyszeri" />
 
         <RadioButton
-            android:id="@+id/radioButton4"
+            android:id="@+id/radioButtonIsmetlodo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -91,5 +91,40 @@
             android:text="Ismétlődő" />
 
     </RadioGroup>
+
+    <Spinner
+        android:id="@+id/spinnerIsmetlodes"
+        android:layout_width="145dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="60dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="200dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:backgroundTint="#4E3838"
+            android:text="Hozzáadás" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:backgroundTint="#4E3838"
+            android:text="Mégsem" />
+    </LinearLayout>
 
 </LinearLayout>

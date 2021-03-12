@@ -11,6 +11,7 @@ public class Szamla
     private Date szamlaHatarido;
     private String szamlaTipus;
     private String ismetlodesGyakorisag;
+    private boolean elvegzett;
 
     public Szamla(String tn, int szo, Date szh, String szt)
     {
@@ -18,6 +19,25 @@ public class Szamla
         szamlaOsszeg = szo;
         szamlaHatarido = szh;
         szamlaTipus = szt;
+        elvegzett = false;
+    }
+
+    public Szamla(String tn, int szo, Date szh, String szt, String ig)
+    {
+        tetelNev = tn;
+        szamlaOsszeg = szo;
+        szamlaHatarido = szh;
+        szamlaTipus = szt;
+        ismetlodesGyakorisag = ig;
+        elvegzett = false;
+    }
+
+    public boolean isElvegzett() {
+        return elvegzett;
+    }
+
+    public void setElvegzett(boolean elvegzett) {
+        this.elvegzett = elvegzett;
     }
 
     public String getTetelNev() {
