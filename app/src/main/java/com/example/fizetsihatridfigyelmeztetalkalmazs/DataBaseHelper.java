@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -54,6 +55,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     }
 
+
+
+
+
     public List<Szamla> AdatbazisbolOsszesLekerese()
     {
         List<Szamla> returnList = new ArrayList<>();
@@ -91,6 +96,92 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return returnList;
     }
 
+
+
+
+
+    public List<Szamla> AdatbazisbolNemElvegzettekLekerese()
+    {
+        List<Szamla> returnList = new ArrayList<>();
+
+        String queryString = "SELECT * FROM " + SZAMLA_TABLA + " WHERE " + COLUMN_ELVEGZETT + " = 0";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if (cursor.moveToFirst())
+        {
+            do {
+                String tetelNev = cursor.getString(1);
+                int szamlaOsszeg = cursor.getInt(2);
+                String szamlaHatarido = cursor.getString(3);
+                String szamlaTipus = cursor.getString(4);
+                String ismetlodesGyakorisag = cursor.getString(5);
+                boolean elvegzett = cursor.getInt(6) == 1 ? true: false;
+
+                Szamla sz = new Szamla(tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
+
+                returnList.add(sz);
+
+            } while (cursor.moveToNext());
+        }
+        else
+        {
+
+        }
+
+        cursor.close();
+        db.close();
+
+        return returnList;
+    }
+
+
+
+
+
+    public List<Szamla> AdatbazisbolElvegzettekLekerese()
+    {
+        List<Szamla> returnList = new ArrayList<>();
+
+        String queryString = "SELECT * FROM " + SZAMLA_TABLA + " WHERE " + COLUMN_ELVEGZETT + " = 1";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if (cursor.moveToFirst())
+        {
+            do {
+                String tetelNev = cursor.getString(1);
+                int szamlaOsszeg = cursor.getInt(2);
+                String szamlaHatarido = cursor.getString(3);
+                String szamlaTipus = cursor.getString(4);
+                String ismetlodesGyakorisag = cursor.getString(5);
+                boolean elvegzett = cursor.getInt(6) == 1 ? true: false;
+
+                Szamla sz = new Szamla(tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
+
+                returnList.add(sz);
+
+            } while (cursor.moveToNext());
+        }
+        else
+        {
+
+        }
+
+        cursor.close();
+        db.close();
+
+        return returnList;
+    }
+
+
+
+
+
     public boolean AdatbazishozHozzaadas(Szamla sz)
     {
 //        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
@@ -118,6 +209,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         {
             return true;
         }
+    }
+
+    public void ElvegzetteNyilvanitas(Szamla sz)
+    {
+        String queryString = "UPDATE " + SZAMLA_TABLA +
+                                " SET " + COLUMN_ELVEGZETT + " = 1 " +
+                                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
+
+        //UPDATE SZAMLA_TABLA SET ELVEGZETT = 1 WHERE TETEL_NEV = sz.getTetelNev() AND SZAMLA_HATARIDO = sz.getSzamlaHatarido();
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(queryString);
+        db.close();
     }
 }
 
