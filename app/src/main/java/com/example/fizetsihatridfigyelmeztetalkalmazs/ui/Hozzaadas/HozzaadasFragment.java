@@ -1,6 +1,7 @@
 package com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Hozzaadas;
 
 import android.app.DatePickerDialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.example.fizetsihatridfigyelmeztetalkalmazs.DataBaseHelper;
@@ -23,7 +25,11 @@ import com.example.fizetsihatridfigyelmeztetalkalmazs.R;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.Szamla;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class HozzaadasFragment extends Fragment {
@@ -32,7 +38,7 @@ public class HozzaadasFragment extends Fragment {
     RadioButton radioButtonEgyszeri, radioButtonIsmetlodo;
     RadioGroup radioGroupTipus;
     Spinner spinnerIsmetlodes;
-    Button buttonHozzaadas;
+    Button buttonHozzaadas, buttonMegsem;
     final Calendar myCalendar = Calendar.getInstance();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -48,6 +54,7 @@ public class HozzaadasFragment extends Fragment {
         radioGroupTipus = root.findViewById(R.id.radioGroupTipus);
         spinnerIsmetlodes = root.findViewById(R.id.spinnerIsmetlodes);
         buttonHozzaadas = root.findViewById(R.id.buttonHozzaadas);
+        buttonMegsem = root.findViewById(R.id.buttonTorles);
 
         editTextTetelNev.setText("");
         editTextOsszeg.setText("");
@@ -100,6 +107,7 @@ public class HozzaadasFragment extends Fragment {
         });
 
         buttonHozzaadas.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
                 DataBaseHelper dataBaseHelper = new DataBaseHelper(getActivity());
@@ -107,6 +115,8 @@ public class HozzaadasFragment extends Fragment {
                 Log.d("onclickButtonHozzaadas", "onClick esemény elindult");
 
                 Szamla sz;
+                List<Szamla> szList;
+                boolean sikeres = false;
 
                 try
                 {
@@ -119,17 +129,78 @@ public class HozzaadasFragment extends Fragment {
                         {
                             sz = new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
                                     editTextHatarido.getText().toString(), "egyszeri");
+                            sikeres = dataBaseHelper.AdatbazishozHozzaadas(sz);
                         }
                         else
                         {
-                            sz = new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
-                                    editTextHatarido.getText().toString(), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString());
+                            szList = new ArrayList<>();
+
+                            szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
+                                    editTextHatarido.getText().toString(), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+
+                            String ismetlodes = spinnerIsmetlodes.getSelectedItem().toString();
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+                            Date hataridoKezdodes = format.parse(editTextHatarido.getText().toString());
+                            Date hatarido = hataridoKezdodes;
+
+                            Log.d("hatarido", format.format(hatarido));
+
+                            switch (ismetlodes)
+                            {
+                                case "Havonta":
+                                    for (int i=0; i<12; i++)
+                                    {
+                                        hatarido.setMonth(hatarido.getMonth()+1);
+
+                                        szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                    }
+                                    break;
+                                case "2 havonta":
+                                    for(int i=0; i<6; i++)
+                                    {
+                                        hatarido.setMonth(hatarido.getMonth()+2);
+
+                                        szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                    }
+                                    break;
+                                case "3 havonta":
+                                    for(int i=0; i<4; i++)
+                                    {
+                                        hatarido.setMonth(hatarido.getMonth()+3);
+
+                                        szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                    }
+                                    break;
+                                case "Félévente":
+                                    for(int i=0; i<2; i++)
+                                    {
+                                        hatarido.setMonth(hatarido.getMonth()+6);
+
+                                        szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                    }
+                                    break;
+                                case "Évente":
+                                    hatarido.setMonth(hatarido.getMonth()+12);
+
+                                    szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
+                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                    break;
+                            }
+
+                            for(Szamla s : szList)
+                            {
+                                sikeres = dataBaseHelper.AdatbazishozHozzaadas(s);
+                            }
                         }
                         editTextTetelNev.setText("");
                         editTextOsszeg.setText("");
                         editTextHatarido.setText("");
 
-                        boolean sikeres = dataBaseHelper.AdatbazishozHozzaadas(sz);
+
                         Toast.makeText(getContext(), "Sikeres: " + sikeres, Toast.LENGTH_SHORT).show();
                     }
                     else
@@ -144,6 +215,19 @@ public class HozzaadasFragment extends Fragment {
                 }
             }
         });
+
+
+        buttonMegsem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                editTextHatarido.setText("");
+                editTextOsszeg.setText("");
+                editTextTetelNev.setText("");
+                radioButtonEgyszeri.toggle();
+            }
+        });
+
 
         return root;
     }
