@@ -224,6 +224,27 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.execSQL(queryString);
         db.close();
     }
+
+    public void Torles(Szamla sz)
+    {
+        String queryString = "DELETE FROM " + SZAMLA_TABLA +
+                " WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(queryString);
+        db.close();
+    }
+
+    public void OsszesTorlese()
+    {
+        String queryString = "DELETE FROM " + SZAMLA_TABLA;
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(queryString);
+        db.close();
+    }
 }
 
 

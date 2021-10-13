@@ -10,7 +10,6 @@
     <string name="menu_kezdolap">Kezdőlap</string>
     <string name="menu_hozzaadas">Hozzáadás</string>
     <string name="menu_befizetett">Befizetett Számlák</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="menu_statisztikak">Statisztikák</string>
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
