@@ -17,4 +17,13 @@
         <item>Félévente</item>
         <item>Évente</item>
     </string-array>
+
+    <string-array name="szures_array">
+        <item>↑ Abc</item>
+        <item>↓ Abc</item>
+        <item>↑ Dátum</item>
+        <item>↓ Dátum</item>
+        <item>↑ Összeg</item>
+        <item>↓ Összeg</item>
+    </string-array>
 </resources>
