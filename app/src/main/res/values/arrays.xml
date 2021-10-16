@@ -26,4 +26,23 @@
         <item>↑ Összeg</item>
         <item>↓ Összeg</item>
     </string-array>
+
+    <string-array name="ertesites_array">
+        <item>Aznap</item>
+        <item>Előtte 1 nappal</item>
+        <item>Előtte 3 nappal</item>
+        <item>Előtte 1 héttel</item>
+    </string-array>
+
+    <string-array name="ertesitesi_mod_array">
+        <item>Rendszer értesítés</item>
+        <item>E-mail</item>
+        <item>Rendszer értesítés + E-mail</item>
+    </string-array>
+
+    <string-array name="valuta_array">
+        <item>HUF</item>
+        <item>EUR</item>
+        <item>USD</item>
+    </string-array>
 </resources>

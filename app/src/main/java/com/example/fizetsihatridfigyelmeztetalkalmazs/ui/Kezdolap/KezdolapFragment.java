@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -66,10 +67,13 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
     EditText editTextSzamlaNev;
     Spinner spinnerSzures;
 
+    TextView textViewSzamlaOsszeg;
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_kezdolap, container, false);
+        View recyclerView = inflater.inflate(R.layout.recyclerview, container, false);
 
         recyclerViewSzamlak = root.findViewById(R.id.recyclerViewBefizetettSzamlak);
         imageViewKereses = root.findViewById(R.id.imageViewKereses);
@@ -77,6 +81,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         imageViewSzures = root.findViewById(R.id.imageViewSzures);
         editTextSzamlaNev = root.findViewById(R.id.editTextSzamlaNev);
         spinnerSzures = root.findViewById(R.id.spinnerSzures);
+        textViewSzamlaOsszeg = recyclerView.findViewById(R.id.textViewSzamlaOsszeg);
 
         dataBaseHelper = new DataBaseHelper(getContext());
         listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
@@ -88,13 +93,10 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         spinnerSzures.setAdapter(spinnerAdapter);
         spinnerSzures.setSelection(2);
 
-//        listaRecyclerView.addAll(RendezesDatumNovekvo(listaSzamlak));
         recyclerViewSzamlak.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new MyRecyclerViewAdapter(getContext(), listaRecyclerView);
         adapter.setClickListener(this);
         recyclerViewSzamlak.setAdapter(adapter);
-
-
 
 
 
@@ -248,7 +250,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
 
             if (direction == ItemTouchHelper.LEFT)
             {
-                listaSzamlak.remove(position);
+                listaRecyclerView.remove(position);
                 adapter.notifyItemRemoved(position);
 
                 deleteItemDialog(position, toroltszamla);
@@ -431,7 +433,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 Toast.makeText(getContext(), "Számla sikeresen elvégzetté jelölve:\n" + adapter.getItem(position).getTetelNev(), Toast.LENGTH_LONG).show();
                 dataBaseHelper.ElvegzetteNyilvanitas(adapter.getItem(position));
 
-                listaSzamlak.remove(position);
+                listaRecyclerView.remove(position);
                 adapter.notifyItemRemoved(position);
                 adapter.notifyItemRangeChanged(position, listaSzamlak.size());
 
@@ -449,6 +451,9 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
             }
         });
     }
+
+
+
 
 
 

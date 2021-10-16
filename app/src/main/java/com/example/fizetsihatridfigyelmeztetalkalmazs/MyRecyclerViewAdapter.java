@@ -1,6 +1,7 @@
 package com.example.fizetsihatridfigyelmeztetalkalmazs;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private List<Szamla> mData;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
+
+    DataBaseHelper dataBaseHelper;
 
     // data is passed into the constructor
     public MyRecyclerViewAdapter(Context context, List<Szamla> data) {
@@ -46,9 +49,32 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 //        String szamlaOsszeg = String.valueOf(mData.get(position).getSzamlaOsszeg());
 //        holder.textViewTetelNev.setText(szamlaOsszeg);
 
+        dataBaseHelper = new DataBaseHelper(holder.textViewSzamlaOsszeg.getContext());
+
         holder.textViewTetelNev.setText(mData.get(position).getTetelNev());
         holder.textViewSzamlaOsszeg.setText(String.valueOf(mData.get(position).getSzamlaOsszeg()));
         holder.textViewSzamlaHatarido.setText(mData.get(position).getSzamlaHatarido());
+
+        String valuta = dataBaseHelper.getValuta();
+        Log.d("valuta", "valuta értéke: " + valuta);
+        switch (valuta)
+        {
+            case "HUF":
+                holder.textViewValutaHUF.setVisibility(View.VISIBLE);
+                holder.textViewValutaEUR.setVisibility(View.INVISIBLE);
+                holder.textViewValutaUSD.setVisibility(View.INVISIBLE);
+                break;
+            case "EUR":
+                holder.textViewValutaHUF.setVisibility(View.INVISIBLE);
+                holder.textViewValutaEUR.setVisibility(View.VISIBLE);
+                holder.textViewValutaUSD.setVisibility(View.INVISIBLE);
+                break;
+            case "USD":
+                holder.textViewValutaHUF.setVisibility(View.INVISIBLE);
+                holder.textViewValutaEUR.setVisibility(View.INVISIBLE);
+                holder.textViewValutaUSD.setVisibility(View.VISIBLE);
+                break;
+        }
     }
 
     // total number of rows
@@ -60,13 +86,16 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
     {
-        TextView textViewTetelNev, textViewSzamlaHatarido, textViewSzamlaOsszeg;
+        TextView textViewTetelNev, textViewSzamlaHatarido, textViewSzamlaOsszeg, textViewValutaHUF, textViewValutaEUR, textViewValutaUSD;
 
         ViewHolder(View itemView) {
             super(itemView);
             textViewTetelNev = itemView.findViewById(R.id.textViewTetelNev);
             textViewSzamlaHatarido = itemView.findViewById(R.id.textViewSzamlaHatarido);
             textViewSzamlaOsszeg = itemView.findViewById(R.id.textViewSzamlaOsszeg);
+            textViewValutaHUF = itemView.findViewById(R.id.textViewValutaHUF);
+            textViewValutaEUR = itemView.findViewById(R.id.textViewValutaEUR);
+            textViewValutaUSD = itemView.findViewById(R.id.textViewValutaUSD);
             itemView.setOnClickListener(this);
         }
 

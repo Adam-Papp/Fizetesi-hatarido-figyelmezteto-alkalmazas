@@ -9,7 +9,7 @@
     tools:context=".ui.Beallitasok.BeallitasokFragment" >
 
     <Button
-        android:id="@+id/buttonHozzaadas2"
+        android:id="@+id/buttonMentes"
         android:layout_width="146dp"
         android:layout_height="61dp"
         android:layout_marginEnd="20dp"
@@ -41,6 +41,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="10dp"
+        android:entries="@array/ertesites_array"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
@@ -87,6 +88,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="10dp"
+        android:entries="@array/ertesitesi_mod_array"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView7" />
@@ -110,6 +112,8 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="10dp"
+        android:entries="@array/valuta_array"
+        android:spinnerMode="dropdown"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView8" />

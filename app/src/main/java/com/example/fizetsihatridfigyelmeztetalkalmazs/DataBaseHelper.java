@@ -245,6 +245,85 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.execSQL(queryString);
         db.close();
     }
+
+    public List<String> AdatbazisbolBeallitasokLekerese()
+    {
+        List<String> returnList = new ArrayList<>();
+
+        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if (cursor.moveToFirst())
+        {
+            do {
+                String ertesites = cursor.getString(0);
+                int ertesitesIdopont = cursor.getInt(1);
+                String ertesitesMod = cursor.getString(2);
+                String valuta = cursor.getString(3);
+
+                returnList.add(ertesites);
+                returnList.add(String.valueOf(ertesitesIdopont));
+                returnList.add(ertesitesMod);
+                returnList.add(valuta);
+
+            } while (cursor.moveToNext());
+        }
+        else
+        {
+
+        }
+
+        cursor.close();
+        db.close();
+
+        return returnList;
+    }
+
+    public void BeallitasokMentese(String ertesites, String ertesitesIdopontja, String ertesitesiMod, String valuta)
+    {
+        String queryString = "UPDATE " + BEALLITASOK_TABLA +
+                " SET " + COLUMN_ERTESITES + " = '" + ertesites + "', " + COLUMN_ERTESITES_IDOPONT + " = " + ertesitesIdopontja + ", " +
+                COLUMN_ERTESITES_MOD + " = '" + ertesitesiMod + "', " + COLUMN_VALUTA + " = '" + valuta + "'";
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(queryString);
+        db.close();
+    }
+
+    public String getValuta()
+    {
+        String returnString = "";
+
+        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if (cursor.moveToFirst())
+        {
+            do {
+                String valuta = cursor.getString(3);
+
+                returnString = valuta;
+
+            } while (cursor.moveToNext());
+        }
+        else
+        {
+
+        }
+
+        cursor.close();
+        db.close();
+
+        return returnString;
+    }
+
 }
 
 
