@@ -1,6 +1,7 @@
 package com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Kezdolap;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -16,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -45,10 +47,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
@@ -188,39 +192,8 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (parent.getItemAtPosition(position).toString())
-                {
-                    case "↑ Abc":
-                        listaRecyclerView.clear();
-                        listaRecyclerView.addAll(RendezesAbcNovekvo(listaSzamlak));
-                        adapter.notifyDataSetChanged();
-                        break;
-                    case "↓ Abc":
-                        listaRecyclerView.clear();
-                        listaRecyclerView.addAll(RendezesAbcCsokkeno(listaSzamlak));
-                        adapter.notifyDataSetChanged();
-                        break;
-                    case "↑ Dátum":
-                        listaRecyclerView.clear();
-                        listaRecyclerView.addAll(RendezesDatumNovekvo(listaSzamlak));
-                        adapter.notifyDataSetChanged();
-                        break;
-                    case "↓ Dátum":
-                        listaRecyclerView.clear();
-                        listaRecyclerView.addAll(RendezesDatumCsokkeno(listaSzamlak));
-                        adapter.notifyDataSetChanged();
-                        break;
-                    case "↑ Összeg":
-                        listaRecyclerView.clear();
-                        listaRecyclerView.addAll(RendezesOsszegNovekvo(listaSzamlak));
-                        adapter.notifyDataSetChanged();
-                        break;
-                    case "↓ Összeg":
-                        listaRecyclerView.clear();
-                        listaRecyclerView.addAll(RendezesOsszegCsokkeno(listaSzamlak));
-                        adapter.notifyDataSetChanged();
-                        break;
-                }
+                String feltetel = parent.getItemAtPosition(position).toString();
+                KitoltesRendezes(feltetel);
                 Log.d("spinner", parent.getItemAtPosition(position).toString());
             }
 
@@ -234,6 +207,44 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         return root;
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void KitoltesRendezes(String feltetel)
+    {
+        switch (feltetel)
+        {
+            case "↑ Abc":
+                listaRecyclerView.clear();
+                listaRecyclerView.addAll(RendezesAbcNovekvo(listaSzamlak));
+                adapter.notifyDataSetChanged();
+                break;
+            case "↓ Abc":
+                listaRecyclerView.clear();
+                listaRecyclerView.addAll(RendezesAbcCsokkeno(listaSzamlak));
+                adapter.notifyDataSetChanged();
+                break;
+            case "↑ Dátum":
+                listaRecyclerView.clear();
+                listaRecyclerView.addAll(RendezesDatumNovekvo(listaSzamlak));
+                adapter.notifyDataSetChanged();
+                break;
+            case "↓ Dátum":
+                listaRecyclerView.clear();
+                listaRecyclerView.addAll(RendezesDatumCsokkeno(listaSzamlak));
+                adapter.notifyDataSetChanged();
+                break;
+            case "↑ Összeg":
+                listaRecyclerView.clear();
+                listaRecyclerView.addAll(RendezesOsszegNovekvo(listaSzamlak));
+                adapter.notifyDataSetChanged();
+                break;
+            case "↓ Összeg":
+                listaRecyclerView.clear();
+                listaRecyclerView.addAll(RendezesOsszegCsokkeno(listaSzamlak));
+                adapter.notifyDataSetChanged();
+                break;
+        }
+    }
 
 
 
@@ -494,6 +505,8 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         buttonMegse2 = szerkesztespopup.findViewById(R.id.buttonMegse2);
         buttonTorles2 = szerkesztespopup.findViewById(R.id.buttonTorles2);
 
+        final Calendar myCalendar = Calendar.getInstance();
+
         dataBaseHelper = new DataBaseHelper(getContext());
         List<String> listSpinner = new ArrayList<>();
         listSpinner.add("Havonta");
@@ -524,35 +537,61 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
             }
         }
 
+        DatePickerDialog.OnDateSetListener datum = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, month);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                String myFormat = "yyyy/MM/dd";
+                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.getDefault());
+                editTextHatarido2.setText(sdf.format(myCalendar.getTime()));
+            }
+        };
+
+        editTextHatarido2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new DatePickerDialog(getContext(), datum, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
         buttonMentes2.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
                 if (!editTextTetelNev2.getText().toString().equals(sz.getTetelNev()))
                 {
-                    Toast.makeText(getContext(), "Lefutott", Toast.LENGTH_SHORT).show();
                     dataBaseHelper.FrissitesTetelnev(adapter.getItem(position), editTextTetelNev2.getText().toString());
-                    listaRecyclerView.clear();
-                    listaRecyclerView.addAll(dataBaseHelper.AdatbazisbolNemElvegzettekLekerese());
-                    adapter.notifyDataSetChanged();
+                    listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                    KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
                 }
-//                if (!editTextOsszeg2.getText().equals(sz.getSzamlaOsszeg()))
-//                {
-//                    dataBaseHelper.FrissitesOsszeg(adapter.getItem(position));
-//                }
+                if (Integer.parseInt(editTextOsszeg2.getText().toString()) != sz.getSzamlaOsszeg())
+                {
+                    dataBaseHelper.FrissitesOsszeg(adapter.getItem(position), Integer.parseInt(editTextOsszeg2.getText().toString()));
+                    listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                    KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                }
+                //TODO ismétlődőnél ugyanaz lesz az év
 //                if (!editTextHatarido2.getText().equals(sz.getSzamlaHatarido()))
 //                {
-//                    dataBaseHelper.FrissitesHatarido(adapter.getItem(position));
+//                    dataBaseHelper.FrissitesHatarido(adapter.getItem(position), editTextHatarido2.getText().toString());
+//                    listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+//                    KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
 //                }
-//                if (sz.getSzamlaTipus().equals("egyszeri") && radioButtonIsmetlodo2.isChecked())
-//                {
-//                    dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position));
-//                    dataBaseHelper.FrissitesIsmetlodesGyakorisag(adapter.getItem(position), spinnerIsmetlodes2.getSelectedItem().toString());
-//                }
-//                if (sz.getSzamlaTipus().equals("ismetlodo") && radioButtonEgyszeri2.isChecked())
-//                {
-//                    dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position));
-//                    dataBaseHelper.FrissitesIsmetlodesGyakorisag(adapter.getItem(position), null);
-//                }
+                //TODO típusnak megfelelően törölni kell/hozzáadni kell
+                if (sz.getSzamlaTipus().equals("egyszeri") && radioButtonIsmetlodo2.isChecked())
+                {
+                    dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position), "ismetlodo");
+                    dataBaseHelper.FrissitesIsmetlodesGyakorisag(adapter.getItem(position), spinnerIsmetlodes2.getSelectedItem().toString());
+                }
+                if (sz.getSzamlaTipus().equals("ismetlodo") && radioButtonEgyszeri2.isChecked())
+                {
+                    dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position), "egyszeri");
+                    dataBaseHelper.FrissitesIsmetlodesGyakorisagNull(adapter.getItem(position), "null");
+                }
                 dialog2.dismiss();
             }
         });
@@ -617,7 +656,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         });
 
         buttonMegse.setOnClickListener(v -> {
-            listaSzamlak.add(position, toroltszamla);
+            listaRecyclerView.add(position, toroltszamla);
             adapter.notifyItemInserted(position);
             dialog.hide();
         });

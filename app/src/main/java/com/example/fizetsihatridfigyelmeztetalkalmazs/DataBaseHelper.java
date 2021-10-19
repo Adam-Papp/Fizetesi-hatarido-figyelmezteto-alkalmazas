@@ -336,6 +336,66 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void FrissitesOsszeg(Szamla sz, int ujosszeg)
+    {
+        String queryString = "UPDATE " + SZAMLA_TABLA +
+                " SET " + COLUMN_SZAMLA_OSSZEG + " = " + ujosszeg + " " +
+                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(queryString);
+        db.close();
+    }
+
+    public void FrissitesHatarido(Szamla sz, String ujhatido)
+    {
+        String queryString = "UPDATE " + SZAMLA_TABLA +
+                " SET " + COLUMN_SZAMLA_HATARIDO + " = '" + ujhatido + "' " +
+                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_OSSZEG + " = " + sz.getSzamlaOsszeg() + "";
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(queryString);
+        db.close();
+    }
+
+    public void FrissitesSzamlaTipus(Szamla sz, String ujtipus)
+    {
+        String queryString = "UPDATE " + SZAMLA_TABLA +
+                " SET " + COLUMN_SZAMLA_TIPUS + " = '" + ujtipus + "' " +
+                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(queryString);
+        db.close();
+    }
+
+    public void FrissitesIsmetlodesGyakorisag(Szamla sz, String ujgyakorisag)
+    {
+        String queryString = "UPDATE " + SZAMLA_TABLA +
+                " SET " + COLUMN_ISMETLODES_GYAKORISAG + " = '" + ujgyakorisag + "' " +
+                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(queryString);
+        db.close();
+    }
+
+    public void FrissitesIsmetlodesGyakorisagNull(Szamla sz, String ujgyakorisag)
+    {
+        String queryString = "UPDATE " + SZAMLA_TABLA +
+                " SET " + COLUMN_ISMETLODES_GYAKORISAG + " = " + ujgyakorisag + " " +
+                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(queryString);
+        db.close();
+    }
+
 }
 
 
