@@ -1,6 +1,7 @@
 package com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Kezdolap;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
@@ -10,12 +11,15 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +28,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,7 +41,6 @@ import com.example.fizetsihatridfigyelmeztetalkalmazs.Szamla;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.text.Collator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
@@ -44,7 +49,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
@@ -67,13 +71,16 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
     EditText editTextSzamlaNev;
     Spinner spinnerSzures;
 
-    TextView textViewSzamlaOsszeg;
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    View root;
+    LayoutInflater globalInflater;
+    ViewGroup globalContainer;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_kezdolap, container, false);
-        View recyclerView = inflater.inflate(R.layout.recyclerview, container, false);
+        root = inflater.inflate(R.layout.fragment_kezdolap, container, false);
+        globalInflater = inflater;
+        globalContainer = container;
 
         recyclerViewSzamlak = root.findViewById(R.id.recyclerViewBefizetettSzamlak);
         imageViewKereses = root.findViewById(R.id.imageViewKereses);
@@ -81,7 +88,6 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         imageViewSzures = root.findViewById(R.id.imageViewSzures);
         editTextSzamlaNev = root.findViewById(R.id.editTextSzamlaNev);
         spinnerSzures = root.findViewById(R.id.spinnerSzures);
-        textViewSzamlaOsszeg = recyclerView.findViewById(R.id.textViewSzamlaOsszeg);
 
         dataBaseHelper = new DataBaseHelper(getContext());
         listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
@@ -179,6 +185,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
 
 
         spinnerSzures.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch (parent.getItemAtPosition(position).toString())
@@ -321,6 +328,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
     public List<Szamla> RendezesDatumNovekvo(List<Szamla> lista)
     {
         List<Szamla> returnLista = new ArrayList<>();
+        listaSzamlaDatumokkal.clear();
 
         for (Szamla sz : lista)
         {
@@ -352,6 +360,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
     public List<Szamla> RendezesDatumCsokkeno(List<Szamla> lista)
     {
         List<Szamla> returnLista = new ArrayList<>();
+        listaSzamlaDatumokkal.clear();
 
         for (Szamla sz : lista)
         {
@@ -446,22 +455,144 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         imageViewSzerkesztes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "Szerkesztés lefutott: " + adapter.getItem(position), Toast.LENGTH_SHORT).show();
+                szerkesztesDialog(position);
                 dialog.hide();
             }
         });
     }
 
+    private void szerkesztesDialog(int position)
+    {
+        Dialog dialog2;
+        final View szerkesztespopup = getLayoutInflater().inflate(R.layout.szerkesztespopup, null);
+        dialog2 = new Dialog(getContext());
+        dialog2.setContentView(szerkesztespopup);
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog2.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+        dialog2.show();
+        dialog2.getWindow().setAttributes(lp);
+
+
+        EditText editTextTetelNev2, editTextOsszeg2, editTextHatarido2;
+        RadioGroup radioGroupTipus2;
+        RadioButton radioButtonEgyszeri2, radioButtonIsmetlodo2;
+        Spinner spinnerIsmetlodes2;
+        Button buttonMentes2, buttonMegse2, buttonTorles2;
+
+
+        editTextTetelNev2 = szerkesztespopup.findViewById(R.id.editTextTetelNev2);
+        editTextOsszeg2 = szerkesztespopup.findViewById(R.id.editTextOsszeg2);
+        editTextHatarido2 = szerkesztespopup.findViewById(R.id.editTextHatarido2);
+        radioGroupTipus2 = szerkesztespopup.findViewById(R.id.radioGroupTipus2);
+        radioButtonEgyszeri2 = szerkesztespopup.findViewById(R.id.radioButtonEgyszeri2);
+        radioButtonIsmetlodo2 = szerkesztespopup.findViewById(R.id.radioButtonIsmetlodo2);
+        spinnerIsmetlodes2 = szerkesztespopup.findViewById(R.id.spinnerIsmetlodes2);
+        buttonMentes2 = szerkesztespopup.findViewById(R.id.buttonMentes2);
+        buttonMegse2 = szerkesztespopup.findViewById(R.id.buttonMegse2);
+        buttonTorles2 = szerkesztespopup.findViewById(R.id.buttonTorles2);
+
+        dataBaseHelper = new DataBaseHelper(getContext());
+        List<String> listSpinner = new ArrayList<>();
+        listSpinner.add("Havonta");
+        listSpinner.add("2 havonta");
+        listSpinner.add("3 havonta");
+        listSpinner.add("Félévente");
+        listSpinner.add("Évente");
 
 
 
+        Szamla sz = adapter.getItem(position);
+        editTextTetelNev2.setText(sz.getTetelNev());
+        editTextOsszeg2.setText(String.valueOf(sz.getSzamlaOsszeg()));
+        editTextHatarido2.setText(sz.getSzamlaHatarido());
 
+        if (sz.getSzamlaTipus().equals("egyszeri"))
+        {
+            radioButtonEgyszeri2.setChecked(true);
+            spinnerIsmetlodes2.setVisibility(View.INVISIBLE);
+        }
+        else
+        {
+            radioButtonIsmetlodo2.setChecked(true);
+            for (String s : listSpinner)
+            {
+                if (s.equals(sz.getIsmetlodesGyakorisag()))
+                    spinnerIsmetlodes2.setSelection(listSpinner.indexOf(s));
+            }
+        }
 
+        buttonMentes2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!editTextTetelNev2.getText().toString().equals(sz.getTetelNev()))
+                {
+                    Toast.makeText(getContext(), "Lefutott", Toast.LENGTH_SHORT).show();
+                    dataBaseHelper.FrissitesTetelnev(adapter.getItem(position), editTextTetelNev2.getText().toString());
+                    listaRecyclerView.clear();
+                    listaRecyclerView.addAll(dataBaseHelper.AdatbazisbolNemElvegzettekLekerese());
+                    adapter.notifyDataSetChanged();
+                }
+//                if (!editTextOsszeg2.getText().equals(sz.getSzamlaOsszeg()))
+//                {
+//                    dataBaseHelper.FrissitesOsszeg(adapter.getItem(position));
+//                }
+//                if (!editTextHatarido2.getText().equals(sz.getSzamlaHatarido()))
+//                {
+//                    dataBaseHelper.FrissitesHatarido(adapter.getItem(position));
+//                }
+//                if (sz.getSzamlaTipus().equals("egyszeri") && radioButtonIsmetlodo2.isChecked())
+//                {
+//                    dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position));
+//                    dataBaseHelper.FrissitesIsmetlodesGyakorisag(adapter.getItem(position), spinnerIsmetlodes2.getSelectedItem().toString());
+//                }
+//                if (sz.getSzamlaTipus().equals("ismetlodo") && radioButtonEgyszeri2.isChecked())
+//                {
+//                    dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position));
+//                    dataBaseHelper.FrissitesIsmetlodesGyakorisag(adapter.getItem(position), null);
+//                }
+                dialog2.dismiss();
+            }
+        });
 
+        buttonMegse2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog2.cancel();
+            }
+        });
 
+        buttonTorles2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dataBaseHelper.Torles(adapter.getItem(position));
 
+                listaRecyclerView.remove(position);
+                adapter.notifyItemRemoved(position);
+                adapter.notifyItemRangeChanged(position, listaSzamlak.size());
 
+                adapter.notifyDataSetChanged();
 
+                dialog2.hide();
+            }
+        });
+
+        radioGroupTipus2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == radioButtonEgyszeri2.getId())
+                {
+                    spinnerIsmetlodes2.setVisibility(View.INVISIBLE);
+                }
+                if (checkedId == radioButtonIsmetlodo2.getId())
+                {
+                    spinnerIsmetlodes2.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
 
 
     //DIALOG

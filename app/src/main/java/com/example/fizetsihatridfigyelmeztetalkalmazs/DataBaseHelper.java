@@ -324,6 +324,18 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return returnString;
     }
 
+    public void FrissitesTetelnev(Szamla sz, String ujnev)
+    {
+        String queryString = "UPDATE " + SZAMLA_TABLA +
+                " SET " + COLUMN_TETEL_NEV + " = '" + ujnev + "' " +
+                "WHERE " + COLUMN_SZAMLA_OSSZEG + " = " + sz.getSzamlaOsszeg() + " AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(queryString);
+        db.close();
+    }
+
 }
 
 
