@@ -1,6 +1,9 @@
 package com.example.fizetsihatridfigyelmeztetalkalmazs;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +17,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder>
 {
@@ -40,14 +49,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-//        String tetelNev = mData.get(position).getTetelNev();
-//        holder.textViewTetelNev.setText(tetelNev);
-
-//        String szamlaHatarido = mData.get(position).getSzamlaHatarido();
-//        holder.textViewSzamlaHatarido.setText(szamlaHatarido);
-//
-//        String szamlaOsszeg = String.valueOf(mData.get(position).getSzamlaOsszeg());
-//        holder.textViewTetelNev.setText(szamlaOsszeg);
 
         dataBaseHelper = new DataBaseHelper(holder.textViewSzamlaOsszeg.getContext());
 
@@ -74,6 +75,23 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                 holder.textViewValutaEUR.setVisibility(View.INVISIBLE);
                 holder.textViewValutaUSD.setVisibility(View.VISIBLE);
                 break;
+        }
+
+
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+        Date parsed = null;
+        try {
+            parsed = format.parse(mData.get(position).getSzamlaHatarido());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Date date = new Date(parsed.getTime());
+
+        if ((mData.get(position).isElvegzett() == false) && (date.getTime() < System.currentTimeMillis()))
+        {
+            holder.textViewSzamlaHatarido.setTypeface(null, Typeface.BOLD);
+            holder.textViewSzamlaHatarido.setTextColor(Color.rgb(102, 0, 0));
         }
     }
 

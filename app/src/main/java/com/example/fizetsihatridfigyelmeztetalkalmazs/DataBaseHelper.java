@@ -72,16 +72,17 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst())
         {
             do {
-               String tetelNev = cursor.getString(1);
-               int szamlaOsszeg = cursor.getInt(2);
-               String szamlaHatarido = cursor.getString(3);
-               String szamlaTipus = cursor.getString(4);
-               String ismetlodesGyakorisag = cursor.getString(5);
-               boolean elvegzett = cursor.getInt(6) == 1 ? true: false;
+                int id = cursor.getInt(0);
+                String tetelNev = cursor.getString(1);
+                int szamlaOsszeg = cursor.getInt(2);
+                String szamlaHatarido = cursor.getString(3);
+                String szamlaTipus = cursor.getString(4);
+                String ismetlodesGyakorisag = cursor.getString(5);
+                boolean elvegzett = cursor.getInt(6) == 1 ? true: false;
 
-               Szamla sz = new Szamla(tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
+                Szamla sz = new Szamla(tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
 
-               returnList.add(sz);
+                returnList.add(sz);
 
             } while (cursor.moveToNext());
         }
@@ -113,6 +114,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst())
         {
             do {
+                int id = cursor.getInt(0);
                 String tetelNev = cursor.getString(1);
                 int szamlaOsszeg = cursor.getInt(2);
                 String szamlaHatarido = cursor.getString(3);
@@ -154,6 +156,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst())
         {
             do {
+                int id = cursor.getInt(0);
                 String tetelNev = cursor.getString(1);
                 int szamlaOsszeg = cursor.getInt(2);
                 String szamlaHatarido = cursor.getString(3);

@@ -6,6 +6,7 @@ import java.util.Date;
 
 public class Szamla
 {
+    private int id;
     private String tetelNev;
     private int szamlaOsszeg;
     private String szamlaHatarido;
@@ -43,6 +44,20 @@ public class Szamla
         elvegzett = false;
         elvegzett = e;
     }
+
+    public Szamla(int id, String tn, int szo, String szh, String szt, String ig, boolean e)
+    {
+        this.id = id;
+        tetelNev = tn;
+        szamlaOsszeg = szo;
+        szamlaHatarido = szh;
+        szamlaTipus = szt;
+        ismetlodesGyakorisag = ig;
+        elvegzett = false;
+        elvegzett = e;
+    }
+
+    public int getID() { return id; }
 
     public boolean isElvegzett() {
         return elvegzett;
