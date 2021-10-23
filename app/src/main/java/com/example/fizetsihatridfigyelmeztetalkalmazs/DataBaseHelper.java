@@ -80,7 +80,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 String ismetlodesGyakorisag = cursor.getString(5);
                 boolean elvegzett = cursor.getInt(6) == 1 ? true: false;
 
-                Szamla sz = new Szamla(tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
+                Szamla sz = new Szamla(id, tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
 
                 returnList.add(sz);
 
@@ -122,7 +122,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 String ismetlodesGyakorisag = cursor.getString(5);
                 boolean elvegzett = cursor.getInt(6) == 1 ? true: false;
 
-                Szamla sz = new Szamla(tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
+                Szamla sz = new Szamla(id, tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
 
                 returnList.add(sz);
 
@@ -164,7 +164,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 String ismetlodesGyakorisag = cursor.getString(5);
                 boolean elvegzett = cursor.getInt(6) == 1 ? true: false;
 
-                Szamla sz = new Szamla(tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
+                Szamla sz = new Szamla(id, tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
 
                 returnList.add(sz);
 
@@ -329,9 +329,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public void FrissitesTetelnev(Szamla sz, String ujnev)
     {
+//        String queryString = "UPDATE " + SZAMLA_TABLA +
+//                " SET " + COLUMN_TETEL_NEV + " = '" + ujnev + "' " +
+//                "WHERE " + COLUMN_SZAMLA_OSSZEG + " = " + sz.getSzamlaOsszeg() + " AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
         String queryString = "UPDATE " + SZAMLA_TABLA +
                 " SET " + COLUMN_TETEL_NEV + " = '" + ujnev + "' " +
-                "WHERE " + COLUMN_SZAMLA_OSSZEG + " = " + sz.getSzamlaOsszeg() + " AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+                "WHERE " + COLUMN_ID + " = " + sz.getID();
 
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -341,10 +345,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public void FrissitesOsszeg(Szamla sz, int ujosszeg)
     {
+//        String queryString = "UPDATE " + SZAMLA_TABLA +
+//                " SET " + COLUMN_SZAMLA_OSSZEG + " = " + ujosszeg + " " +
+//                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
         String queryString = "UPDATE " + SZAMLA_TABLA +
                 " SET " + COLUMN_SZAMLA_OSSZEG + " = " + ujosszeg + " " +
-                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
-
+                "WHERE " + COLUMN_ID + " = " + sz.getID();
 
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(queryString);
@@ -353,9 +360,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public void FrissitesHatarido(Szamla sz, String ujhatido)
     {
+//        String queryString = "UPDATE " + SZAMLA_TABLA +
+//                " SET " + COLUMN_SZAMLA_HATARIDO + " = '" + ujhatido + "' " +
+//                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_OSSZEG + " = " + sz.getSzamlaOsszeg() + "";
+
         String queryString = "UPDATE " + SZAMLA_TABLA +
                 " SET " + COLUMN_SZAMLA_HATARIDO + " = '" + ujhatido + "' " +
-                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_OSSZEG + " = " + sz.getSzamlaOsszeg() + "";
+                "WHERE " + COLUMN_ID + " = " + sz.getID();
 
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -365,9 +376,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public void FrissitesSzamlaTipus(Szamla sz, String ujtipus)
     {
+//        String queryString = "UPDATE " + SZAMLA_TABLA +
+//                " SET " + COLUMN_SZAMLA_TIPUS + " = '" + ujtipus + "' " +
+//                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
         String queryString = "UPDATE " + SZAMLA_TABLA +
                 " SET " + COLUMN_SZAMLA_TIPUS + " = '" + ujtipus + "' " +
-                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+                "WHERE " + COLUMN_ID + " = " + sz.getID();
 
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -377,9 +392,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public void FrissitesIsmetlodesGyakorisag(Szamla sz, String ujgyakorisag)
     {
+//        String queryString = "UPDATE " + SZAMLA_TABLA +
+//                " SET " + COLUMN_ISMETLODES_GYAKORISAG + " = '" + ujgyakorisag + "' " +
+//                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+
         String queryString = "UPDATE " + SZAMLA_TABLA +
                 " SET " + COLUMN_ISMETLODES_GYAKORISAG + " = '" + ujgyakorisag + "' " +
-                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+                "WHERE " + COLUMN_ID + " = " + sz.getID();
 
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -387,18 +406,17 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void FrissitesIsmetlodesGyakorisagNull(Szamla sz, String ujgyakorisag)
+    public void FrissitesTetelnevOsszes(Szamla sz)
     {
         String queryString = "UPDATE " + SZAMLA_TABLA +
-                " SET " + COLUMN_ISMETLODES_GYAKORISAG + " = " + ujgyakorisag + " " +
-                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+                " SET " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' " +
+                "WHERE " + COLUMN_SZAMLA_OSSZEG + " = " + sz.getSzamlaOsszeg() + " AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
 
 
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(queryString);
         db.close();
     }
-
 }
 
 

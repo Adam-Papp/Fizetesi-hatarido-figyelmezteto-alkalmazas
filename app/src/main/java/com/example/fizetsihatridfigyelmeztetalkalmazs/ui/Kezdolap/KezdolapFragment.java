@@ -562,35 +562,223 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
-                if (!editTextTetelNev2.getText().toString().equals(sz.getTetelNev()))
+                if (adapter.getItem(position).getSzamlaTipus().equals("egyszeri"))
                 {
-                    dataBaseHelper.FrissitesTetelnev(adapter.getItem(position), editTextTetelNev2.getText().toString());
-                    listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
-                    KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                    if (!editTextTetelNev2.getText().toString().equals(sz.getTetelNev())) {
+                        dataBaseHelper.FrissitesTetelnev(adapter.getItem(position), editTextTetelNev2.getText().toString());
+                        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                        KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                    }
+                    if (Integer.parseInt(editTextOsszeg2.getText().toString()) != sz.getSzamlaOsszeg()) {
+                        dataBaseHelper.FrissitesOsszeg(adapter.getItem(position), Integer.parseInt(editTextOsszeg2.getText().toString()));
+                        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                        KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                    }
+                    if (!editTextHatarido2.getText().equals(sz.getSzamlaHatarido())) {
+                        dataBaseHelper.FrissitesHatarido(adapter.getItem(position), editTextHatarido2.getText().toString());
+                        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                        KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                    }
+                    if (radioButtonIsmetlodo2.isChecked()) //Ismétlődő számlára szerkesztés
+                    {
+                        dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position), "ismetlodo");
+                        dataBaseHelper.FrissitesIsmetlodesGyakorisag(adapter.getItem(position), spinnerIsmetlodes2.getSelectedItem().toString());
+
+
+
+                        List<Szamla> szList = new ArrayList<>();
+                        boolean sikeres = false;
+                        String ismetlodes = spinnerIsmetlodes2.getSelectedItem().toString();
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+                        Date hataridoKezdodes = null;
+                        try {
+                            hataridoKezdodes = format.parse(editTextHatarido2.getText().toString());
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        Date hatarido = hataridoKezdodes;
+
+                        Log.d("hatarido", format.format(hatarido));
+
+                        switch (ismetlodes)
+                        {
+                            case "Havonta":
+                                for (int i=0; i<12; i++)
+                                {
+                                    hatarido.setMonth(hatarido.getMonth()+1);
+
+                                    szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
+                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                }
+                                break;
+                            case "2 havonta":
+                                for(int i=0; i<6; i++)
+                                {
+                                    hatarido.setMonth(hatarido.getMonth()+2);
+
+                                    szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
+                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                }
+                                break;
+                            case "3 havonta":
+                                for(int i=0; i<4; i++)
+                                {
+                                    hatarido.setMonth(hatarido.getMonth()+3);
+
+                                    szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
+                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                }
+                                break;
+                            case "Félévente":
+                                for(int i=0; i<2; i++)
+                                {
+                                    hatarido.setMonth(hatarido.getMonth()+6);
+
+                                    szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
+                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                }
+                                break;
+                            case "Évente":
+                                hatarido.setMonth(hatarido.getMonth()+12);
+
+                                szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
+                                        format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                break;
+                        }
+
+                        for(Szamla s : szList)
+                        {
+                            sikeres = dataBaseHelper.AdatbazishozHozzaadas(s);
+                            KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                        }
+                        if (sikeres) {
+                            Toast.makeText(getContext(), "További számlák sikeresen hozzáadva.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), "Nem sikerült a számlákat hozzáadni.", Toast.LENGTH_LONG).show();
+                        }
+                    }
                 }
-                if (Integer.parseInt(editTextOsszeg2.getText().toString()) != sz.getSzamlaOsszeg())
+                else
                 {
-                    dataBaseHelper.FrissitesOsszeg(adapter.getItem(position), Integer.parseInt(editTextOsszeg2.getText().toString()));
-                    listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
-                    KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
-                }
-                //TODO ismétlődőnél ugyanaz lesz az év
-//                if (!editTextHatarido2.getText().equals(sz.getSzamlaHatarido()))
-//                {
-//                    dataBaseHelper.FrissitesHatarido(adapter.getItem(position), editTextHatarido2.getText().toString());
-//                    listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
-//                    KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
-//                }
-                //TODO típusnak megfelelően törölni kell/hozzáadni kell
-                if (sz.getSzamlaTipus().equals("egyszeri") && radioButtonIsmetlodo2.isChecked())
-                {
-                    dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position), "ismetlodo");
-                    dataBaseHelper.FrissitesIsmetlodesGyakorisag(adapter.getItem(position), spinnerIsmetlodes2.getSelectedItem().toString());
-                }
-                if (sz.getSzamlaTipus().equals("ismetlodo") && radioButtonEgyszeri2.isChecked())
-                {
-                    dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position), "egyszeri");
-                    dataBaseHelper.FrissitesIsmetlodesGyakorisagNull(adapter.getItem(position), "null");
+                    dialogBuilder = new AlertDialog.Builder(getContext());
+                    final View ismSzamlaSzerkesztesPopupView = getLayoutInflater().inflate(R.layout.ismetlodoszamlaszerkesztespopup, null);
+                    Button buttonMindegyik, buttonEgy;
+
+                    buttonMindegyik = ismSzamlaSzerkesztesPopupView.findViewById(R.id.buttonMindegyik);
+                    buttonEgy = ismSzamlaSzerkesztesPopupView.findViewById(R.id.buttonEgy);
+
+                    dialogBuilder.setView(ismSzamlaSzerkesztesPopupView);
+                    Dialog dialogSzerkIsmPopup = dialogBuilder.create();
+                    dialogSzerkIsmPopup.setCanceledOnTouchOutside(false);
+                    dialogSzerkIsmPopup.show();
+
+                    buttonEgy.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (!editTextTetelNev2.getText().toString().equals(sz.getTetelNev())) {
+                                dataBaseHelper.FrissitesTetelnev(adapter.getItem(position), editTextTetelNev2.getText().toString());
+                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                            }
+                            if (Integer.parseInt(editTextOsszeg2.getText().toString()) != sz.getSzamlaOsszeg()) {
+                                dataBaseHelper.FrissitesOsszeg(adapter.getItem(position), Integer.parseInt(editTextOsszeg2.getText().toString()));
+                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                            }
+                            if (!editTextHatarido2.getText().toString().equals(sz.getSzamlaHatarido())) {
+                                dataBaseHelper.FrissitesHatarido(adapter.getItem(position), editTextHatarido2.getText().toString());
+                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                            }
+                            if (radioButtonEgyszeri2.isChecked())
+                            {
+                                dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position), "egyszeri");
+                                dataBaseHelper.FrissitesIsmetlodesGyakorisag(adapter.getItem(position), "NULL");
+                            }
+                            dialogSzerkIsmPopup.dismiss();
+                        }
+                    });
+
+                    //TODO nem jó a mindegyik szerkesztése
+                    buttonMindegyik.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            List<Szamla> szList = new ArrayList<>();
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+                            Date hataridoKezdodes = null;
+                            try {
+                                hataridoKezdodes = format.parse(adapter.getItem(position).getSzamlaHatarido());
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            Date hatarido = hataridoKezdodes;
+
+                            switch (adapter.getItem(position).getIsmetlodesGyakorisag())
+                            {
+                                case "Havonta":
+                                    for (int i=0; i<13; i++)
+                                    {
+                                        szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        hatarido.setMonth(hatarido.getMonth()+1);
+                                    }
+                                    break;
+                                case "2 havonta":
+                                    for(int i=0; i<7; i++)
+                                    {
+                                        szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        hatarido.setMonth(hatarido.getMonth()+2);
+                                    }
+                                    break;
+                                case "3 havonta":
+                                    for(int i=0; i<5; i++)
+                                    {
+                                        szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        hatarido.setMonth(hatarido.getMonth()+3);
+                                    }
+                                    break;
+                                case "Félévente":
+                                    for(int i=0; i<3; i++)
+                                    {
+                                        szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        hatarido.setMonth(hatarido.getMonth()+6);
+                                    }
+                                    break;
+                                case "Évente":
+                                    for (int i=0; i<2; i++)
+                                    {
+                                        szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        hatarido.setMonth(hatarido.getMonth()+12);
+                                    }
+                                    break;
+                            }
+
+                            if (!editTextTetelNev2.getText().toString().equals(sz.getTetelNev())) {
+                                for (Szamla szamla : szList)
+                                {
+                                    dataBaseHelper.FrissitesTetelnevOsszes(szamla);
+                                }
+                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                            }
+//                            if (Integer.parseInt(editTextOsszeg2.getText().toString()) != sz.getSzamlaOsszeg()) {
+//                                dataBaseHelper.FrissitesOsszeg(adapter.getItem(position), Integer.parseInt(editTextOsszeg2.getText().toString()));
+//                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+//                                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+//                            }
+//                            if (!editTextHatarido2.getText().equals(sz.getSzamlaHatarido())) {
+//                                dataBaseHelper.FrissitesHatarido(adapter.getItem(position), editTextHatarido2.getText().toString());
+//                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+//                                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+//                            }
+                            dialogSzerkIsmPopup.dismiss();
+                        }
+                    });
                 }
                 dialog2.dismiss();
             }
@@ -606,15 +794,8 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         buttonTorles2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dataBaseHelper.Torles(adapter.getItem(position));
-
-                listaRecyclerView.remove(position);
-                adapter.notifyItemRemoved(position);
-                adapter.notifyItemRangeChanged(position, listaSzamlak.size());
-
-                adapter.notifyDataSetChanged();
-
-                dialog2.hide();
+                deleteItemDialog(position);
+                dialog2.dismiss();
             }
         });
 
@@ -659,6 +840,36 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
             listaRecyclerView.add(position, toroltszamla);
             adapter.notifyItemInserted(position);
             dialog.hide();
+        });
+    }
+
+    //DIALOG
+    public void deleteItemDialog(int position)
+    {
+        dialogBuilder = new AlertDialog.Builder(getContext());
+        final View deleteItemPopupView = getLayoutInflater().inflate(R.layout.deleteitempopup, null);
+        Button buttonIgen, buttonMegse;
+
+        buttonIgen = deleteItemPopupView.findViewById(R.id.buttonIgen);
+        buttonMegse = deleteItemPopupView.findViewById(R.id.buttonMegse);
+
+        dialogBuilder.setView(deleteItemPopupView);
+        dialog = dialogBuilder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+
+
+        buttonIgen.setOnClickListener(v -> {
+            dataBaseHelper.Torles(adapter.getItem(position));
+            listaRecyclerView.remove(position);
+            adapter.notifyItemRemoved(position);
+            adapter.notifyItemRangeChanged(position, listaRecyclerView.size());
+            adapter.notifyDataSetChanged();
+            dialog.dismiss();
+        });
+
+        buttonMegse.setOnClickListener(v -> {
+            dialog.cancel();
         });
     }
 }
