@@ -88,6 +88,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         }
         Date date = new Date(parsed.getTime());
 
+        //TODO 2022/10/21-et is pirosan jelzi
         if ((mData.get(position).isElvegzett() == false) && (date.getTime() < System.currentTimeMillis()))
         {
             holder.textViewSzamlaHatarido.setTypeface(null, Typeface.BOLD);

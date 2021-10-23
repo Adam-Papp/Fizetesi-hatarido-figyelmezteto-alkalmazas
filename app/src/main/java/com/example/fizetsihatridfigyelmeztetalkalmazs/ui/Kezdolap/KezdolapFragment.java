@@ -694,6 +694,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                             {
                                 dataBaseHelper.FrissitesSzamlaTipus(adapter.getItem(position), "egyszeri");
                                 dataBaseHelper.FrissitesIsmetlodesGyakorisag(adapter.getItem(position), "NULL");
+                                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
                             }
                             dialogSzerkIsmPopup.dismiss();
                         }
@@ -704,7 +705,14 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                         @Override
                         public void onClick(View v) {
 
-                            List<Szamla> szList = new ArrayList<>();
+                            if (radioButtonEgyszeri2.isChecked())
+                            {
+                                Toast.makeText(getContext(), "Érvénytelen parancs", Toast.LENGTH_LONG).show();
+                                dialogSzerkIsmPopup.dismiss();
+                                dialog2.cancel();
+                            }
+
+                            List<Szamla> listaSzerkTorlendoSzamlak = new ArrayList<>();
                             SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
                             Date hataridoKezdodes = null;
                             try {
@@ -719,68 +727,139 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                 case "Havonta":
                                     for (int i=0; i<13; i++)
                                     {
-                                        szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
-                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        listaSzerkTorlendoSzamlak.add(new Szamla(adapter.getItem(position).getTetelNev(), adapter.getItem(position).getSzamlaOsszeg(),
+                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag()));
                                         hatarido.setMonth(hatarido.getMonth()+1);
                                     }
                                     break;
                                 case "2 havonta":
                                     for(int i=0; i<7; i++)
                                     {
-                                        szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
-                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        listaSzerkTorlendoSzamlak.add(new Szamla(adapter.getItem(position).getTetelNev(), adapter.getItem(position).getSzamlaOsszeg(),
+                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag()));
                                         hatarido.setMonth(hatarido.getMonth()+2);
                                     }
                                     break;
                                 case "3 havonta":
                                     for(int i=0; i<5; i++)
                                     {
-                                        szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
-                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        listaSzerkTorlendoSzamlak.add(new Szamla(adapter.getItem(position).getTetelNev(), adapter.getItem(position).getSzamlaOsszeg(),
+                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag()));
                                         hatarido.setMonth(hatarido.getMonth()+3);
                                     }
                                     break;
                                 case "Félévente":
                                     for(int i=0; i<3; i++)
                                     {
-                                        szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
-                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        listaSzerkTorlendoSzamlak.add(new Szamla(adapter.getItem(position).getTetelNev(), adapter.getItem(position).getSzamlaOsszeg(),
+                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag()));
                                         hatarido.setMonth(hatarido.getMonth()+6);
                                     }
                                     break;
                                 case "Évente":
                                     for (int i=0; i<2; i++)
                                     {
-                                        szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
-                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        listaSzerkTorlendoSzamlak.add(new Szamla(adapter.getItem(position).getTetelNev(), adapter.getItem(position).getSzamlaOsszeg(),
+                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag()));
                                         hatarido.setMonth(hatarido.getMonth()+12);
                                     }
                                     break;
                             }
 
-                            if (!editTextTetelNev2.getText().toString().equals(sz.getTetelNev())) {
-                                for (Szamla szamla : szList)
-                                {
-                                    dataBaseHelper.FrissitesTetelnevOsszes(szamla);
-                                }
-                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
-                                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+
+
+                            if (!editTextTetelNev2.getText().toString().equals(listaSzerkTorlendoSzamlak.get(0).getTetelNev())) {
+                                SzamlakTorleseHozzaadasa(listaSzerkTorlendoSzamlak, format);
                             }
-//                            if (Integer.parseInt(editTextOsszeg2.getText().toString()) != sz.getSzamlaOsszeg()) {
-//                                dataBaseHelper.FrissitesOsszeg(adapter.getItem(position), Integer.parseInt(editTextOsszeg2.getText().toString()));
-//                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
-//                                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
-//                            }
-//                            if (!editTextHatarido2.getText().equals(sz.getSzamlaHatarido())) {
-//                                dataBaseHelper.FrissitesHatarido(adapter.getItem(position), editTextHatarido2.getText().toString());
-//                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
-//                                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
-//                            }
+                            if (Integer.parseInt(editTextOsszeg2.getText().toString()) != listaSzerkTorlendoSzamlak.get(0).getSzamlaOsszeg()) {
+                                SzamlakTorleseHozzaadasa(listaSzerkTorlendoSzamlak, format);
+                            }
+                            if (!editTextHatarido2.getText().toString().equals(listaSzerkTorlendoSzamlak.get(0).getSzamlaHatarido())) {
+                                SzamlakTorleseHozzaadasa(listaSzerkTorlendoSzamlak, format);
+                            }
+                            if (!spinnerIsmetlodes2.getSelectedItem().toString().equals(listaSzerkTorlendoSzamlak.get(0).getIsmetlodesGyakorisag())) {
+                                SzamlakTorleseHozzaadasa(listaSzerkTorlendoSzamlak, format);
+                            }
+
                             dialogSzerkIsmPopup.dismiss();
                         }
                     });
                 }
                 dialog2.dismiss();
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            private void SzamlakTorleseHozzaadasa(List<Szamla> listaSzerkTorlendoSzamlak, SimpleDateFormat format) {
+                Date hatarido;
+                Date hataridoKezdodes;
+                for (Szamla sz : listaSzerkTorlendoSzamlak)
+                {
+                    dataBaseHelper.Torles(sz);
+                }
+
+                List<Szamla> listaSzerkUjSzamlak = new ArrayList<>();
+
+                hataridoKezdodes = null;
+                try {
+                    hataridoKezdodes = format.parse(editTextHatarido2.getText().toString());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                hatarido = hataridoKezdodes;
+
+                switch (spinnerIsmetlodes2.getSelectedItem().toString())
+                {
+                    case "Havonta":
+                        for (int i=0; i<13; i++)
+                        {
+                            listaSzerkUjSzamlak.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.valueOf(editTextOsszeg2.getText().toString()),
+                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                            hatarido.setMonth(hatarido.getMonth()+1);
+                        }
+                        break;
+                    case "2 havonta":
+                        for(int i=0; i<7; i++)
+                        {
+                            listaSzerkUjSzamlak.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.valueOf(editTextOsszeg2.getText().toString()),
+                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                            hatarido.setMonth(hatarido.getMonth()+2);
+                        }
+                        break;
+                    case "3 havonta":
+                        for(int i=0; i<5; i++)
+                        {
+                            listaSzerkUjSzamlak.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.valueOf(editTextOsszeg2.getText().toString()),
+                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                            hatarido.setMonth(hatarido.getMonth()+3);
+                        }
+                        break;
+                    case "Félévente":
+                        for(int i=0; i<3; i++)
+                        {
+                            listaSzerkUjSzamlak.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.valueOf(editTextOsszeg2.getText().toString()),
+                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                            hatarido.setMonth(hatarido.getMonth()+6);
+                        }
+                        break;
+                    case "Évente":
+                        for (int i=0; i<2; i++)
+                        {
+                            listaSzerkUjSzamlak.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.valueOf(editTextOsszeg2.getText().toString()),
+                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                            hatarido.setMonth(hatarido.getMonth()+12);
+                        }
+                        break;
+                }
+
+                for (Szamla ujsz : listaSzerkUjSzamlak)
+                {
+                    dataBaseHelper.AdatbazishozHozzaadas(ujsz);
+                }
+
+                listaRecyclerView.clear();
+                listaRecyclerView = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+
             }
         });
 
