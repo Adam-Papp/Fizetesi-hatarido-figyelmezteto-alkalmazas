@@ -700,7 +700,6 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                         }
                     });
 
-                    //TODO nem jó a mindegyik szerkesztése
                     buttonMindegyik.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -781,6 +780,8 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                 SzamlakTorleseHozzaadasa(listaSzerkTorlendoSzamlak, format);
                             }
 
+                            KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+
                             dialogSzerkIsmPopup.dismiss();
                         }
                     });
@@ -856,8 +857,8 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                     dataBaseHelper.AdatbazishozHozzaadas(ujsz);
                 }
 
-                listaRecyclerView.clear();
-                listaRecyclerView = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                listaSzamlak.clear();
+                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
                 KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
 
             }

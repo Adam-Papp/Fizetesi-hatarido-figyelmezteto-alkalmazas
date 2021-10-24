@@ -21,8 +21,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder>
@@ -87,9 +89,18 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             e.printStackTrace();
         }
         Date date = new Date(parsed.getTime());
+        Date currentDate = Calendar.getInstance().getTime();
 
-        //TODO 2022/10/21-et is pirosan jelzi
-        if ((mData.get(position).isElvegzett() == false) && (date.getTime() < System.currentTimeMillis()))
+//        Log.d("datumok", String.valueOf(date.getYear()) + " < " + currentDate.getYear() + "\n" + date.getMonth() + " < " + currentDate.getMonth() + "\n" +
+//                date.getDay() + " < " + currentDate.getDay());
+
+        Log.d("datumok", String.valueOf(date.getTime()) + " < " + System.currentTimeMillis() + "   =   " + String.valueOf(date.getTime() < System.currentTimeMillis()));
+
+        holder.textViewSzamlaHatarido.setTypeface(null, Typeface.NORMAL);
+        holder.textViewSzamlaHatarido.setTextColor(Color.rgb(0, 0, 0));
+
+        if ((!mData.get(position).isElvegzett()) && (date.getTime() < System.currentTimeMillis())
+                /*&& date.getYear() <= currentDate.getYear() && date.getMonth() <= currentDate.getMonth() && date.getDay() <= currentDate.getDay()*/)
         {
             holder.textViewSzamlaHatarido.setTypeface(null, Typeface.BOLD);
             holder.textViewSzamlaHatarido.setTextColor(Color.rgb(102, 0, 0));
@@ -115,6 +126,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             textViewValutaHUF = itemView.findViewById(R.id.textViewValutaHUF);
             textViewValutaEUR = itemView.findViewById(R.id.textViewValutaEUR);
             textViewValutaUSD = itemView.findViewById(R.id.textViewValutaUSD);
+
+
             itemView.setOnClickListener(this);
         }
 
