@@ -57,8 +57,15 @@ public class BeallitasokFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d("beall", "beallitasokmentese lefutott");
-                dataBaseHelper.BeallitasokMentese(spinnerErtesites.getSelectedItem().toString(), editTextErtesitesIdopontja.getText().toString().replace(":", "")
-                        , spinnerErtesitesiMod.getSelectedItem().toString(), spinnerValuta.getSelectedItem().toString());
+                if (editTextErtesitesIdopontja.getText().toString().length() < 3 )
+                {
+                    Toast.makeText(getContext(), "Hiba történt az Értesítés időpontja mentésénél", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    dataBaseHelper.BeallitasokMentese(spinnerErtesites.getSelectedItem().toString(), editTextErtesitesIdopontja.getText().toString().replace(":", "")
+                            , spinnerErtesitesiMod.getSelectedItem().toString(), spinnerValuta.getSelectedItem().toString());
+                }
             }
         });
 

@@ -417,6 +417,96 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.execSQL(queryString);
         db.close();
     }
+
+    public String getErtesites()
+    {
+        String returnString = "";
+
+        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if (cursor.moveToFirst())
+        {
+            do {
+                String ertesites = cursor.getString(0);
+
+                returnString = ertesites;
+
+            } while (cursor.moveToNext());
+        }
+        else
+        {
+
+        }
+
+        cursor.close();
+        db.close();
+
+        return returnString;
+    }
+
+    public String getErtesitesIdopont()
+    {
+        String returnString = "";
+
+        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if (cursor.moveToFirst())
+        {
+            do {
+                String ertesitesIdopont = cursor.getString(1);
+
+                returnString = ertesitesIdopont;
+
+            } while (cursor.moveToNext());
+        }
+        else
+        {
+
+        }
+
+        cursor.close();
+        db.close();
+
+        return returnString;
+    }
+
+    public String getErtesitesMod()
+    {
+        String returnString = "";
+
+        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if (cursor.moveToFirst())
+        {
+            do {
+                String ertesitesMod = cursor.getString(2);
+
+                returnString = ertesitesMod;
+
+            } while (cursor.moveToNext());
+        }
+        else
+        {
+
+        }
+
+        cursor.close();
+        db.close();
+
+        return returnString;
+    }
 }
 
 
