@@ -1004,6 +1004,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
             case "E-mail":
                 break;
             case "Rendszer értesítés + E-mail":
+                ErtesitesSwitchRendszerErtesites(ertesites, ertesitesIdopont);
                 break;
         }
     }
@@ -1013,6 +1014,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         listaSzamlaDatumokkal.clear();
 
         Date currentTime = Calendar.getInstance().getTime();
+        Calendar currentDate = Calendar.getInstance();
 
         for (Szamla sz : listaSzamlak)
         {
@@ -1035,11 +1037,12 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         {
             case "Aznap":
                 szamlaCounter = 0;
+
                 if (clock.equals(ertesitesIdopont))
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
                     {
-                        if (sz.getValue().getYear() == currentTime.getYear() && sz.getValue().getMonth() == currentTime.getMonth() && sz.getValue().getDay() == currentTime.getDay())
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDay() == currentDate.getTime().getDay())
                         {
                             szamlaCounter++;
                         }
@@ -1054,12 +1057,13 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 break;
             case "Előtte 1 nappal":
                 szamlaCounter = 0;
+                currentDate.add(Calendar.DATE, 1);
 
                 if (clock.equals(ertesitesIdopont))
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
                     {
-                        if (sz.getValue().getYear() == currentTime.getYear() && sz.getValue().getMonth() == currentTime.getMonth() && sz.getValue().getDay() == currentTime.getDay()+1)
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDay() == currentDate.getTime().getDate())
                         {
                             szamlaCounter++;
                         }
@@ -1073,12 +1077,13 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 break;
             case "Előtte 3 nappal":
                 szamlaCounter = 0;
+                currentDate.add(Calendar.DATE, 3);
 
                 if (clock.equals(ertesitesIdopont))
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
                     {
-                        if (sz.getValue().getYear() == currentTime.getYear() && sz.getValue().getMonth() == currentTime.getMonth() && sz.getValue().getDay() == currentTime.getDay()+3)
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDay() == currentDate.getTime().getDay())
                         {
                             szamlaCounter++;
                         }
@@ -1086,19 +1091,20 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
 
                     if (szamlaCounter > 0)
                     {
-                        ErtesitesKuldes("3 nap múlva", szamlaCounter);
+                        ErtesitesKuldes("Három nap múlva", szamlaCounter);
                     }
                 }
                 break;
             case "Előtte 1 héttel":
                 szamlaCounter = 0;
+                currentDate.add(Calendar.DATE, 7);
 
                 if (clock.equals(ertesitesIdopont))
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
                     {
-                        Log.d("timeChangedReceiver", sz.getValue().getDate() + "   -   " + currentTime.getDate());
-                        if (sz.getValue().getYear() == currentTime.getYear() && sz.getValue().getMonth() == currentTime.getMonth() && sz.getValue().getDate() == (currentTime.getDate()+7))
+                        Log.d("timeChangedReceiver", sz.getValue().getDate() + "   -   " + currentDate.getTime().getDate());
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDate() == currentDate.getTime().getDate())
                         {
                             szamlaCounter++;
                         }
@@ -1106,7 +1112,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
 
                     if (szamlaCounter > 0)
                     {
-                        ErtesitesKuldes("1 hét múlva", szamlaCounter);
+                        ErtesitesKuldes("Egy hét múlva", szamlaCounter);
                     }
                 }
                 break;
