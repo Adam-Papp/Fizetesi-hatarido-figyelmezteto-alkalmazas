@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -11,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -87,7 +89,6 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
     LayoutInflater globalInflater;
     ViewGroup globalContainer;
 
-    int ertesitesMetodusSzamlalo = 0;
 
     private final BroadcastReceiver tickReceiver = new BroadcastReceiver(){
         @Override
@@ -110,11 +111,6 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         root = inflater.inflate(R.layout.fragment_kezdolap, container, false);
         globalInflater = inflater;
         globalContainer = container;
-
-//        IntentFilter s_intentFilter = new IntentFilter();
-//        s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
-//        s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
-//        s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
 
         requireActivity().registerReceiver(tickReceiver, new IntentFilter(Intent.ACTION_TIME_TICK)); // register the broadcast receiver to receive TIME_TICK
 
@@ -996,7 +992,6 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
 
     public void Ertesites()
     {
-        if (ertesitesMetodusSzamlalo == 0) {
         String ertesites = dataBaseHelper.getErtesites();
         String ertesitesIdopont = dataBaseHelper.getErtesitesIdopont();
         String ertesitesMod = dataBaseHelper.getErtesitesMod();
@@ -1010,9 +1005,6 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 break;
             case "Rendszer értesítés + E-mail":
                 break;
-        }
-
-        ertesitesMetodusSzamlalo++;
         }
     }
 
@@ -1036,14 +1028,13 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
             listaSzamlaDatumokkal.add(new AbstractMap.SimpleEntry<Szamla, Date>(sz, date));
         }
 
+        String clock = String.valueOf(currentTime.getHours()) + String.valueOf(currentTime.getMinutes());
+        int szamlaCounter = 0;
 
         switch (ertesites)
         {
             case "Aznap":
-                String clock = String.valueOf(currentTime.getHours()) + String.valueOf(currentTime.getMinutes());
-
-                int szamlaCounter = 0;
-
+                szamlaCounter = 0;
                 if (clock.equals(ertesitesIdopont))
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
@@ -1054,39 +1045,110 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                         }
                     }
 
-                    NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(getActivity().NOTIFICATION_SERVICE);
-
-                    Intent notificationIntent = new Intent();
-                    PendingIntent contentIntent = PendingIntent.getActivity(getActivity(), 0, notificationIntent, 0);
-
-                    //TODO Nem jelenik meg az értesítés
-                    Notification notification = new Notification.Builder(getActivity())
-                            .setContentTitle("Számla esedékes!")
-                            .setContentText("Mai napon " + szamlaCounter + "db számla esedékes.")
-                            .setSmallIcon(R.drawable.szamla)
-                            .setContentIntent(contentIntent)
-                            .build();
-                    notificationManager.notify(1, notification);
-
-                    Log.d("timeChangedReceiver", "Notification lefutott");
-
-//                    NotificationCompat.Builder mBuilder =
-//                            new NotificationCompat.Builder(getContext())
-//                                    .setSmallIcon(R.drawable.szamla)
-//                                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-//                                    .setContentTitle("Számla esedékes!")
-//                                    .setContentText("Mai napon " + szamlaCounter + "db számla esedékes.");
-//                    notificationManager.notify(1, mBuilder.build());
+                    if (szamlaCounter > 0)
+                    {
+                        ErtesitesKuldes("Mai napon", szamlaCounter);
+                    }
                 }
 
                 break;
             case "Előtte 1 nappal":
+                szamlaCounter = 0;
+
+                if (clock.equals(ertesitesIdopont))
+                {
+                    for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
+                    {
+                        if (sz.getValue().getYear() == currentTime.getYear() && sz.getValue().getMonth() == currentTime.getMonth() && sz.getValue().getDay() == currentTime.getDay()+1)
+                        {
+                            szamlaCounter++;
+                        }
+                    }
+
+                    if (szamlaCounter > 0)
+                    {
+                        ErtesitesKuldes("Holnap", szamlaCounter);
+                    }
+                }
                 break;
             case "Előtte 3 nappal":
+                szamlaCounter = 0;
+
+                if (clock.equals(ertesitesIdopont))
+                {
+                    for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
+                    {
+                        if (sz.getValue().getYear() == currentTime.getYear() && sz.getValue().getMonth() == currentTime.getMonth() && sz.getValue().getDay() == currentTime.getDay()+3)
+                        {
+                            szamlaCounter++;
+                        }
+                    }
+
+                    if (szamlaCounter > 0)
+                    {
+                        ErtesitesKuldes("3 nap múlva", szamlaCounter);
+                    }
+                }
                 break;
             case "Előtte 1 héttel":
+                szamlaCounter = 0;
+
+                if (clock.equals(ertesitesIdopont))
+                {
+                    for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
+                    {
+                        Log.d("timeChangedReceiver", sz.getValue().getDate() + "   -   " + currentTime.getDate());
+                        if (sz.getValue().getYear() == currentTime.getYear() && sz.getValue().getMonth() == currentTime.getMonth() && sz.getValue().getDate() == (currentTime.getDate()+7))
+                        {
+                            szamlaCounter++;
+                        }
+                    }
+
+                    if (szamlaCounter > 0)
+                    {
+                        ErtesitesKuldes("1 hét múlva", szamlaCounter);
+                    }
+                }
                 break;
         }
+    }
+
+
+    public void ErtesitesKuldes(String contentText, int szamlaCounter)
+    {
+        NotificationManager mNotificationManager;
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getActivity().getApplicationContext(), "notify_001");
+        Intent ii = new Intent(getActivity().getApplicationContext(), KezdolapFragment.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getActivity(), 0, ii, 0);
+
+        mBuilder.setContentIntent(pendingIntent)
+                .setContentTitle("Számla értesítés!")
+                .setContentText(contentText + " " + szamlaCounter + "db számla esedékes.")
+                .setSmallIcon(R.drawable.szamla)
+                .setPriority(Notification.PRIORITY_MAX)
+                .setSound(Uri.parse("android.resource://"
+                        + getActivity().getPackageName() + "/" + R.raw.juntos));
+
+        mNotificationManager =
+                (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // === Removed some obsoletes
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            String channelId = "channel1";
+            NotificationChannel channel = new NotificationChannel(
+                    channelId,
+                    "Számla értesítés",
+                    NotificationManager.IMPORTANCE_HIGH);
+            mNotificationManager.createNotificationChannel(channel);
+            mBuilder.setChannelId(channelId);
+        }
+
+        mNotificationManager.notify(0, mBuilder.build());
+
+        Log.d("timeChangedReceiver", "Notification lefutott");
     }
 }
 
