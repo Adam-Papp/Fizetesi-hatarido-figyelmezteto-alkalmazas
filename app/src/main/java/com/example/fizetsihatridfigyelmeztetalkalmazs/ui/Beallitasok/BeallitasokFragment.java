@@ -47,6 +47,12 @@ public class BeallitasokFragment extends Fragment {
         dataBaseHelper = new DataBaseHelper(getActivity());
         listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese();
 
+        if (listBeallitasok.size() == 0)
+        {
+            dataBaseHelper.AlapBeallitasokHozzaadasa();
+            listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese();
+        }
+
         int ertesitesPos = getErtesitesPos();
         int ertesitesModPos = getErtesitesModPos();
         int valutaPos = getValutaPos();

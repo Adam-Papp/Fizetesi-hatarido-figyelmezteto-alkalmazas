@@ -240,7 +240,15 @@ public class StatisztikakFragment extends Fragment {
         {
             sum += haviAtlag;
         }
-        textViewHaviAtlag.setText(String.valueOf(sum/listaHaviAtlagok.size()));
+
+        if (listaHaviAtlagok.size() != 0)
+        {
+            textViewHaviAtlag.setText(String.valueOf(sum/listaHaviAtlagok.size()));
+        }
+        else
+        {
+            textViewHaviAtlag.setText("0");
+        }
     }
 
     private void ElmulasztottBeallitas()

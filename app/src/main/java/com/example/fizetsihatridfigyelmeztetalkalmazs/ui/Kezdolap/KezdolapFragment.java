@@ -15,6 +15,7 @@ import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,7 +32,6 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -39,15 +39,16 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fizetsihatridfigyelmeztetalkalmazs.DataBaseHelper;
+//import com.example.fizetsihatridfigyelmeztetalkalmazs.EmailService;
+import com.example.fizetsihatridfigyelmeztetalkalmazs.MainActivity;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.MyRecyclerViewAdapter;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.R;
+import com.example.fizetsihatridfigyelmeztetalkalmazs.SendMailTask;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.Szamla;
 
 import org.jetbrains.annotations.NotNull;
@@ -135,7 +136,6 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         adapter = new MyRecyclerViewAdapter(getContext(), listaRecyclerView);
         adapter.setClickListener(this);
         recyclerViewSzamlak.setAdapter(adapter);
-
 
 
 
@@ -1002,12 +1002,93 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 ErtesitesSwitchRendszerErtesites(ertesites, ertesitesIdopont);
                 break;
             case "E-mail":
+                ErtesitesSwitchEmailErtesites(ertesites, ertesitesIdopont);
                 break;
             case "Rendszer értesítés + E-mail":
                 ErtesitesSwitchRendszerErtesites(ertesites, ertesitesIdopont);
+                ErtesitesSwitchEmailErtesites(ertesites, ertesitesIdopont);
                 break;
         }
     }
+
+
+
+    private void ErtesitesSwitchEmailErtesites(String ertesites, String ertesitesIdopont) {
+        listaSzamlaDatumokkal.clear();
+
+        Date currentTime = Calendar.getInstance().getTime();
+        Calendar currentDate = Calendar.getInstance();
+
+        for (Szamla sz : listaSzamlak) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+            Date parsed = null;
+            try {
+                parsed = format.parse(sz.getSzamlaHatarido());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            Date date = new Date(parsed.getTime());
+
+            listaSzamlaDatumokkal.add(new AbstractMap.SimpleEntry<Szamla, Date>(sz, date));
+        }
+
+        String clock;
+
+        if (String.valueOf(currentTime.getMinutes()).length() == 1)
+        {
+            clock = String.valueOf(currentTime.getHours()) + "0" + String.valueOf(currentTime.getMinutes());
+        }
+        else
+        {
+            clock = String.valueOf(currentTime.getHours()) + String.valueOf(currentTime.getMinutes());
+        }
+
+        int szamlaCounter = 0;
+
+        switch (ertesites) {
+            case "Aznap":
+                szamlaCounter = 0;
+
+                if (clock.equals(ertesitesIdopont))
+                {
+                    for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
+                    {
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDay() == currentDate.getTime().getDay())
+                        {
+                            szamlaCounter++;
+                        }
+                    }
+
+                    if (szamlaCounter > 0)
+                    {
+                        try {
+                            EmailKuldes("Mai napon", szamlaCounter);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                break;
+            case "Előtte 1 nappal":
+                break;
+            case "Előtte 3 nappal":
+                break;
+            case "Előtte 1 héttel":
+                break;
+        }
+    }
+
+    private void EmailKuldes(String contentText, int szamlaCounter) throws Exception
+    {
+        String fromEmail = "szamlaalkalmazas@gmail.com";
+        String fromPassword = "SzamlaAlkalmazas1";
+        String toEmails = "adam.papp2326@gmail.com";
+        String emailSubject = "Számla Értesítés!";
+        String emailBody = contentText + " " + szamlaCounter + "db számla esedékes.";
+        new SendMailTask(getActivity()).execute(fromEmail,
+                fromPassword, toEmails, emailSubject, emailBody);
+    }
+
 
     public void ErtesitesSwitchRendszerErtesites(String ertesites, String ertesitesIdopont)
     {
@@ -1030,7 +1111,17 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
             listaSzamlaDatumokkal.add(new AbstractMap.SimpleEntry<Szamla, Date>(sz, date));
         }
 
-        String clock = String.valueOf(currentTime.getHours()) + String.valueOf(currentTime.getMinutes());
+        String clock;
+
+        if (String.valueOf(currentTime.getMinutes()).length() == 1)
+        {
+             clock = String.valueOf(currentTime.getHours()) + "0" + String.valueOf(currentTime.getMinutes());
+        }
+        else
+        {
+             clock = String.valueOf(currentTime.getHours()) + String.valueOf(currentTime.getMinutes());
+        }
+
         int szamlaCounter = 0;
 
         switch (ertesites)

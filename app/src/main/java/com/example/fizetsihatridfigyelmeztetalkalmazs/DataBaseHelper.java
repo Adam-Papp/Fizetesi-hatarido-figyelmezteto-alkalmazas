@@ -507,6 +507,22 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         return returnString;
     }
+
+
+    public void AlapBeallitasokHozzaadasa()
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put(COLUMN_ERTESITES, "Aznap");
+        cv.put(COLUMN_ERTESITES_IDOPONT, "1200");
+        cv.put(COLUMN_ERTESITES_MOD,  "Rendszer értesítés");
+        cv.put(COLUMN_VALUTA, "HUF");
+
+        long insert = db.insert(BEALLITASOK_TABLA, null, cv);
+
+        db.close();
+    }
 }
 
 
