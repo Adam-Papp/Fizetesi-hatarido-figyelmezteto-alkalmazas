@@ -16,7 +16,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.text.InputType;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,9 +31,11 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -45,11 +49,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fizetsihatridfigyelmeztetalkalmazs.DataBaseHelper;
 //import com.example.fizetsihatridfigyelmeztetalkalmazs.EmailService;
+import com.example.fizetsihatridfigyelmeztetalkalmazs.Felhasznalo;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.MainActivity;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.MyRecyclerViewAdapter;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.R;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.SendMailTask;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.Szamla;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -91,6 +103,8 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
     ViewGroup globalContainer;
 
 
+
+
     private final BroadcastReceiver tickReceiver = new BroadcastReceiver(){
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -112,6 +126,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         root = inflater.inflate(R.layout.fragment_kezdolap, container, false);
         globalInflater = inflater;
         globalContainer = container;
+
 
         requireActivity().registerReceiver(tickReceiver, new IntentFilter(Intent.ACTION_TIME_TICK)); // register the broadcast receiver to receive TIME_TICK
 
