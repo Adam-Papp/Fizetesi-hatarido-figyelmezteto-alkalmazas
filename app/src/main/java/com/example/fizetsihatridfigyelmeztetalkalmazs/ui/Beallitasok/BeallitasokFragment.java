@@ -92,7 +92,11 @@ public class BeallitasokFragment extends Fragment {
             spinnerErtesitesiMod.setSelection(ertesitesModPos);
             spinnerValuta.setSelection(valutaPos);
             String idopont = listBeallitasok.get(1);
-            if (idopont.length() == 3)
+            if (idopont.length() == 2)
+            {
+                editTextErtesitesIdopontja.setText("0:" + idopont);
+            }
+            else if (idopont.length() == 3)
             {
                 editTextErtesitesIdopontja.setText(idopont.charAt(0) + ":" + idopont.subSequence(1, 3));
             }
