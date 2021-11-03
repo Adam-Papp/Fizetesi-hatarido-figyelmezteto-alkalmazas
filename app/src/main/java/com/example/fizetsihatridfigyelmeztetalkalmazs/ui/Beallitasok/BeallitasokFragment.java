@@ -2,6 +2,9 @@ package com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Beallitasok;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,11 +19,16 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.fizetsihatridfigyelmeztetalkalmazs.DataBaseHelper;
+import com.example.fizetsihatridfigyelmeztetalkalmazs.MainActivity;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.R;
+import com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Kezdolap.KezdolapFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,27 +38,35 @@ public class BeallitasokFragment extends Fragment {
     Spinner spinnerErtesites, spinnerErtesitesiMod, spinnerValuta;
     EditText editTextErtesitesIdopontja;
     DataBaseHelper dataBaseHelper;
-    Button buttonMentes;
+    Button buttonMentes, buttonKijelentkezes;
+    ProgressBar progressBar;
 
     List<String> listBeallitasok = new ArrayList<>();
+
+    FirebaseAuth auth;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_beallitasok, container, false);
+
+        auth = FirebaseAuth.getInstance();
 
         spinnerErtesites = root.findViewById(R.id.spinnerErtesites);
         spinnerErtesitesiMod = root.findViewById(R.id.spinnerErtesitesiMod);
         spinnerValuta = root.findViewById(R.id.spinnerValuta);
         editTextErtesitesIdopontja = root.findViewById(R.id.editTextErtesitesIdopontja);
         buttonMentes = root.findViewById(R.id.buttonMentes);
+        buttonKijelentkezes = root.findViewById(R.id.buttonKijelentkezes);
+        progressBar = root.findViewById(R.id.progressBar);
 
         dataBaseHelper = new DataBaseHelper(getActivity());
-        listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese();
+        listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese(auth.getCurrentUser().getEmail());
+
 
         if (listBeallitasok.size() == 0)
         {
             dataBaseHelper.AlapBeallitasokHozzaadasa();
-            listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese();
+            listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese(auth.getCurrentUser().getEmail());
         }
 
         int ertesitesPos = getErtesitesPos();
@@ -62,6 +78,7 @@ public class BeallitasokFragment extends Fragment {
         buttonMentes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
                 Log.d("beall", "beallitasokmentese lefutott");
                 if (editTextErtesitesIdopontja.getText().toString().length() < 3 )
                 {
@@ -70,8 +87,18 @@ public class BeallitasokFragment extends Fragment {
                 else
                 {
                     dataBaseHelper.BeallitasokMentese(spinnerErtesites.getSelectedItem().toString(), editTextErtesitesIdopontja.getText().toString().replace(":", "")
-                            , spinnerErtesitesiMod.getSelectedItem().toString(), spinnerValuta.getSelectedItem().toString());
+                            , spinnerErtesitesiMod.getSelectedItem().toString(), spinnerValuta.getSelectedItem().toString(), auth.getCurrentUser().getEmail());
                 }
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        buttonKijelentkezes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                ProcessPhoenix.triggerRebirth(getContext());
+                Toast.makeText(getContext(), "Sikeres kijelentkezés!", Toast.LENGTH_SHORT).show();
             }
         });
 

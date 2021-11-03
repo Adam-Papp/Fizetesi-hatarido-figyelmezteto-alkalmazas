@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.DataBaseHelper;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.R;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.Szamla;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,11 +40,13 @@ public class HozzaadasFragment extends Fragment {
     Spinner spinnerIsmetlodes;
     Button buttonHozzaadas, buttonMegsem;
     final Calendar myCalendar = Calendar.getInstance();
+    FirebaseAuth auth;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_hozzaadas, container, false);
 
+        auth = FirebaseAuth.getInstance();
 
         editTextTetelNev = root.findViewById(R.id.editTextTetelNev);
         editTextOsszeg = root.findViewById(R.id.editTextOsszeg);
@@ -127,7 +130,7 @@ public class HozzaadasFragment extends Fragment {
                         if (radioButtonEgyszeri.isChecked())
                         {
                             sz = new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
-                                    editTextHatarido.getText().toString(), "egyszeri");
+                                    editTextHatarido.getText().toString(), "egyszeri", auth.getCurrentUser().getEmail());
                             sikeres = dataBaseHelper.AdatbazishozHozzaadas(sz);
                         }
                         else
@@ -135,7 +138,7 @@ public class HozzaadasFragment extends Fragment {
                             szList = new ArrayList<>();
 
                             szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
-                                    editTextHatarido.getText().toString(), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                    editTextHatarido.getText().toString(), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
 
                             String ismetlodes = spinnerIsmetlodes.getSelectedItem().toString();
                             SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
@@ -152,7 +155,7 @@ public class HozzaadasFragment extends Fragment {
                                         hatarido.setMonth(hatarido.getMonth()+1);
 
                                         szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
-                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                                     }
                                     break;
                                 case "2 havonta":
@@ -161,7 +164,7 @@ public class HozzaadasFragment extends Fragment {
                                         hatarido.setMonth(hatarido.getMonth()+2);
 
                                         szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
-                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                                     }
                                     break;
                                 case "3 havonta":
@@ -170,7 +173,7 @@ public class HozzaadasFragment extends Fragment {
                                         hatarido.setMonth(hatarido.getMonth()+3);
 
                                         szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
-                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                                     }
                                     break;
                                 case "Félévente":
@@ -179,14 +182,14 @@ public class HozzaadasFragment extends Fragment {
                                         hatarido.setMonth(hatarido.getMonth()+6);
 
                                         szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
-                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                                format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                                     }
                                     break;
                                 case "Évente":
                                     hatarido.setMonth(hatarido.getMonth()+12);
 
                                     szList.add(new Szamla(editTextTetelNev.getText().toString(), Integer.parseInt(editTextOsszeg.getText().toString()),
-                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString()));
+                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                                     break;
                             }
 

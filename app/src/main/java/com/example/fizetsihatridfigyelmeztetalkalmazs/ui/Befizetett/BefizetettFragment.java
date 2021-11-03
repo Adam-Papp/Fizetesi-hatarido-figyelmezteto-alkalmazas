@@ -16,6 +16,7 @@ import com.example.fizetsihatridfigyelmeztetalkalmazs.DataBaseHelper;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.MyRecyclerViewAdapter;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.R;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.Szamla;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,7 +44,7 @@ public class BefizetettFragment extends Fragment {
         recyclerViewBefizetettSzamlak = root.findViewById(R.id.recyclerViewBefizetettSzamlak);
 
         dataBaseHelper = new DataBaseHelper(getContext());
-        listaElvegzettSzamlak = dataBaseHelper.AdatbazisbolElvegzettekLekerese();
+        listaElvegzettSzamlak = dataBaseHelper.AdatbazisbolElvegzettekLekerese(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         recyclerViewBefizetettSzamlak.setLayoutManager(new LinearLayoutManager(getContext()));
 
         adapter = new MyRecyclerViewAdapter(getContext(), listaRecyclerView);

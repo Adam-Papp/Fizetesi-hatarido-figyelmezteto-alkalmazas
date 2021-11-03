@@ -60,6 +60,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -86,7 +87,6 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
     List<Szamla> listaRecyclerView = new ArrayList<>();
     List<Map.Entry<Szamla, Date>> listaSzamlaDatumokkal = new ArrayList<Map.Entry<Szamla, Date>>();
     List<Szamla> listaSzamlak;
-    List<Szamla> listaKeresettSzamlak;
 
     MyRecyclerViewAdapter adapter;
 
@@ -102,7 +102,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
     LayoutInflater globalInflater;
     ViewGroup globalContainer;
 
-
+    FirebaseAuth mAuth;
 
 
     private final BroadcastReceiver tickReceiver = new BroadcastReceiver(){
@@ -127,6 +127,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         globalInflater = inflater;
         globalContainer = container;
 
+        mAuth = FirebaseAuth.getInstance();
 
         requireActivity().registerReceiver(tickReceiver, new IntentFilter(Intent.ACTION_TIME_TICK)); // register the broadcast receiver to receive TIME_TICK
 
@@ -137,8 +138,20 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         editTextSzamlaNev = root.findViewById(R.id.editTextSzamlaNev);
         spinnerSzures = root.findViewById(R.id.spinnerSzures);
 
+        mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onAuthStateChanged(@NonNull @NotNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null)
+                {
+                    KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+                }
+            }
+        });
+
         dataBaseHelper = new DataBaseHelper(getContext());
-        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser() == null? "" : mAuth.getCurrentUser().getEmail());
 
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.szures_array, android.R.layout.simple_spinner_item);
@@ -256,7 +269,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
     public void KitoltesRendezes(String feltetel)
     {
         listaSzamlak.clear();
-        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser() == null? "" : mAuth.getCurrentUser().getEmail());
         switch (feltetel)
         {
             case "↑ Abc":
@@ -311,7 +324,8 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         public void onSwiped(@NonNull @NotNull RecyclerView.ViewHolder viewHolder, int direction)
         {
             int position = viewHolder.getAdapterPosition();
-            Szamla toroltszamla = listaSzamlak.get(position);
+//            Szamla toroltszamla = listaSzamlak.get(position);
+            Szamla toroltszamla = adapter.getItem(position);
 
             if (direction == ItemTouchHelper.LEFT)
             {
@@ -613,17 +627,17 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 {
                     if (!editTextTetelNev2.getText().toString().equals(sz.getTetelNev())) {
                         dataBaseHelper.FrissitesTetelnev(adapter.getItem(position), editTextTetelNev2.getText().toString());
-                        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser().getEmail());
                         KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
                     }
                     if (Integer.parseInt(editTextOsszeg2.getText().toString()) != sz.getSzamlaOsszeg()) {
                         dataBaseHelper.FrissitesOsszeg(adapter.getItem(position), Integer.parseInt(editTextOsszeg2.getText().toString()));
-                        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser().getEmail());
                         KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
                     }
                     if (!editTextHatarido2.getText().equals(sz.getSzamlaHatarido())) {
                         dataBaseHelper.FrissitesHatarido(adapter.getItem(position), editTextHatarido2.getText().toString());
-                        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                        listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser().getEmail());
                         KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
                     }
                     if (radioButtonIsmetlodo2.isChecked()) //Ismétlődő számlára szerkesztés
@@ -646,6 +660,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                         Date hatarido = hataridoKezdodes;
 
                         Log.d("hatarido", format.format(hatarido));
+                        FirebaseAuth auth = FirebaseAuth.getInstance();
 
                         switch (ismetlodes)
                         {
@@ -655,7 +670,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                     hatarido.setMonth(hatarido.getMonth()+1);
 
                                     szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
-                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                                 }
                                 break;
                             case "2 havonta":
@@ -664,7 +679,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                     hatarido.setMonth(hatarido.getMonth()+2);
 
                                     szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
-                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                                 }
                                 break;
                             case "3 havonta":
@@ -673,7 +688,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                     hatarido.setMonth(hatarido.getMonth()+3);
 
                                     szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
-                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                                 }
                                 break;
                             case "Félévente":
@@ -682,14 +697,14 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                     hatarido.setMonth(hatarido.getMonth()+6);
 
                                     szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
-                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                            format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                                 }
                                 break;
                             case "Évente":
                                 hatarido.setMonth(hatarido.getMonth()+12);
 
                                 szList.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.parseInt(editTextOsszeg2.getText().toString()),
-                                        format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                        format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                                 break;
                         }
 
@@ -724,17 +739,17 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                         public void onClick(View v) {
                             if (!editTextTetelNev2.getText().toString().equals(sz.getTetelNev())) {
                                 dataBaseHelper.FrissitesTetelnev(adapter.getItem(position), editTextTetelNev2.getText().toString());
-                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser().getEmail());
                                 KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
                             }
                             if (Integer.parseInt(editTextOsszeg2.getText().toString()) != sz.getSzamlaOsszeg()) {
                                 dataBaseHelper.FrissitesOsszeg(adapter.getItem(position), Integer.parseInt(editTextOsszeg2.getText().toString()));
-                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser().getEmail());
                                 KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
                             }
                             if (!editTextHatarido2.getText().toString().equals(sz.getSzamlaHatarido())) {
                                 dataBaseHelper.FrissitesHatarido(adapter.getItem(position), editTextHatarido2.getText().toString());
-                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser().getEmail());
                                 KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
                             }
                             if (radioButtonEgyszeri2.isChecked())
@@ -767,6 +782,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                 e.printStackTrace();
                             }
                             Date hatarido = hataridoKezdodes;
+                            FirebaseAuth auth = FirebaseAuth.getInstance();
 
                             //TODO ha törlök ismétlődő számlát, akkor újra létrehozza, és szerkeszti
                             switch (adapter.getItem(position).getIsmetlodesGyakorisag())
@@ -775,7 +791,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                     for (int i=0; i<13; i++)
                                     {
                                         listaSzerkTorlendoSzamlak.add(new Szamla(adapter.getItem(position).getTetelNev(), adapter.getItem(position).getSzamlaOsszeg(),
-                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag()));
+                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag(), auth.getCurrentUser().getEmail()));
                                         hatarido.setMonth(hatarido.getMonth()+1);
                                     }
                                     break;
@@ -783,7 +799,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                     for(int i=0; i<7; i++)
                                     {
                                         listaSzerkTorlendoSzamlak.add(new Szamla(adapter.getItem(position).getTetelNev(), adapter.getItem(position).getSzamlaOsszeg(),
-                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag()));
+                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag(), auth.getCurrentUser().getEmail()));
                                         hatarido.setMonth(hatarido.getMonth()+2);
                                     }
                                     break;
@@ -791,7 +807,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                     for(int i=0; i<5; i++)
                                     {
                                         listaSzerkTorlendoSzamlak.add(new Szamla(adapter.getItem(position).getTetelNev(), adapter.getItem(position).getSzamlaOsszeg(),
-                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag()));
+                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag(), auth.getCurrentUser().getEmail()));
                                         hatarido.setMonth(hatarido.getMonth()+3);
                                     }
                                     break;
@@ -799,7 +815,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                     for(int i=0; i<3; i++)
                                     {
                                         listaSzerkTorlendoSzamlak.add(new Szamla(adapter.getItem(position).getTetelNev(), adapter.getItem(position).getSzamlaOsszeg(),
-                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag()));
+                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag(), auth.getCurrentUser().getEmail()));
                                         hatarido.setMonth(hatarido.getMonth()+6);
                                     }
                                     break;
@@ -807,7 +823,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                                     for (int i=0; i<2; i++)
                                     {
                                         listaSzerkTorlendoSzamlak.add(new Szamla(adapter.getItem(position).getTetelNev(), adapter.getItem(position).getSzamlaOsszeg(),
-                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag()));
+                                                format.format(hatarido), "ismetlodo", adapter.getItem(position).getIsmetlodesGyakorisag(), auth.getCurrentUser().getEmail()));
                                         hatarido.setMonth(hatarido.getMonth()+12);
                                     }
                                     break;
@@ -855,6 +871,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                     e.printStackTrace();
                 }
                 hatarido = hataridoKezdodes;
+                FirebaseAuth auth = FirebaseAuth.getInstance();
 
                 switch (spinnerIsmetlodes2.getSelectedItem().toString())
                 {
@@ -862,7 +879,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                         for (int i=0; i<13; i++)
                         {
                             listaSzerkUjSzamlak.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.valueOf(editTextOsszeg2.getText().toString()),
-                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                             hatarido.setMonth(hatarido.getMonth()+1);
                         }
                         break;
@@ -870,7 +887,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                         for(int i=0; i<7; i++)
                         {
                             listaSzerkUjSzamlak.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.valueOf(editTextOsszeg2.getText().toString()),
-                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                             hatarido.setMonth(hatarido.getMonth()+2);
                         }
                         break;
@@ -878,7 +895,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                         for(int i=0; i<5; i++)
                         {
                             listaSzerkUjSzamlak.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.valueOf(editTextOsszeg2.getText().toString()),
-                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                             hatarido.setMonth(hatarido.getMonth()+3);
                         }
                         break;
@@ -886,7 +903,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                         for(int i=0; i<3; i++)
                         {
                             listaSzerkUjSzamlak.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.valueOf(editTextOsszeg2.getText().toString()),
-                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                             hatarido.setMonth(hatarido.getMonth()+6);
                         }
                         break;
@@ -894,7 +911,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                         for (int i=0; i<2; i++)
                         {
                             listaSzerkUjSzamlak.add(new Szamla(editTextTetelNev2.getText().toString(), Integer.valueOf(editTextOsszeg2.getText().toString()),
-                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString()));
+                                    format.format(hatarido), "ismetlodo", spinnerIsmetlodes2.getSelectedItem().toString(), auth.getCurrentUser().getEmail()));
                             hatarido.setMonth(hatarido.getMonth()+12);
                         }
                         break;
@@ -906,7 +923,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 }
 
                 listaSzamlak.clear();
-                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+                listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser().getEmail());
                 KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
 
             }
@@ -961,9 +978,9 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
 
 
         buttonIgen.setOnClickListener(v -> {
-            dataBaseHelper.Torles(adapter.getItem(position));
+            dataBaseHelper.Torles(toroltszamla);
             listaSzamlak.clear();
-            listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+            listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser().getEmail());
             KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
             dialog.hide();
         });
@@ -1328,6 +1345,185 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         mNotificationManager.notify(0, mBuilder.build());
 
         Log.d("timeChangedReceiver", "Notification lefutott");
+    }
+
+    public void BejelentkezesDialog() {
+        dialogBuilder = new AlertDialog.Builder(getActivity());
+        final View loginPopupView = getLayoutInflater().inflate(R.layout.loginpopup, null);
+
+
+        EditText editTextLoginEmail, editTextLoginJelszo;
+        Button buttonBejelentkezes;
+        TextView textViewElfelejtettJelszo, textViewRegisztracio;
+        ProgressBar progressBarBejelentkezes;
+
+        editTextLoginEmail = loginPopupView.findViewById(R.id.editTextLoginEmail);
+        editTextLoginJelszo = loginPopupView.findViewById(R.id.editTextLoginJelszo);
+        buttonBejelentkezes = loginPopupView.findViewById(R.id.buttonBejelentkezes);
+        textViewElfelejtettJelszo = loginPopupView.findViewById(R.id.textViewElfelejtettJelszo);
+        textViewRegisztracio = loginPopupView.findViewById(R.id.textViewRegisztracio);
+        progressBarBejelentkezes = loginPopupView.findViewById(R.id.progressBarBejelentkezes);
+
+        dialogBuilder.setView(loginPopupView);
+        dialog = dialogBuilder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+
+        textViewRegisztracio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("reg", "rákattintottál a regisztrációra");
+                dialog.hide();
+
+                AlertDialog.Builder dialogBuilder2 = new AlertDialog.Builder(getContext());
+                final View regisztracioPopupView = getLayoutInflater().inflate(R.layout.regisztraciopopup, null);
+                Dialog dialog2;
+
+                EditText editTextRegEmail, editTextRegJelszo, editTextRegJelszo2;
+                Button buttonRegisztracio;
+                ProgressBar progressBarRegisztracio;
+
+                editTextRegEmail = regisztracioPopupView.findViewById(R.id.editTextRegEmail);
+                editTextRegJelszo = regisztracioPopupView.findViewById(R.id.editTextRegJelszo);
+                editTextRegJelszo2 = regisztracioPopupView.findViewById(R.id.editTextRegJelszo2);
+                buttonRegisztracio = regisztracioPopupView.findViewById(R.id.buttonRegisztracio);
+                progressBarRegisztracio = regisztracioPopupView.findViewById(R.id.progressBarRegisztracio);
+
+
+                dialogBuilder2.setView(regisztracioPopupView);
+                dialog2 = dialogBuilder2.create();
+                dialog2.setCanceledOnTouchOutside(false);
+                dialog2.show();
+
+
+                buttonRegisztracio.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String email = editTextRegEmail.getText().toString().trim();
+                        String jelszo = editTextRegJelszo.getText().toString().trim();
+                        String jelszo2 = editTextRegJelszo2.getText().toString().trim();
+
+                        if (email.isEmpty())
+                        {
+                            editTextRegEmail.setError("E-mail cím nem lehet üres!");
+                            editTextRegEmail.requestFocus();
+                            return;
+                        }
+
+                        if (jelszo.isEmpty())
+                        {
+                            editTextRegJelszo.setError("Jelszó nem lehet üres!");
+                            editTextRegJelszo.requestFocus();
+                            return;
+                        }
+
+                        if (!jelszo.equals(jelszo2))
+                        {
+                            editTextRegJelszo.setError("Két jelszó nem egyezik!");
+                            editTextRegJelszo.requestFocus();
+                            return;
+                        }
+
+                        if (jelszo.length() < 6)
+                        {
+                            editTextRegJelszo.setError("A jelszónak legalább 6 karakter hosszúnak kell lennie!");
+                            editTextRegJelszo.requestFocus();
+                            return;
+                        }
+
+                        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
+                        {
+                            editTextRegEmail.setError("E-mail formátuma nem megfelelő!");
+                            editTextRegEmail.requestFocus();
+                            return;
+                        }
+
+                        progressBarRegisztracio.setVisibility(View.VISIBLE);
+                        mAuth.createUserWithEmailAndPassword(email, jelszo)
+                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                                        if (task.isSuccessful())
+                                        {
+                                            Felhasznalo felhasznalo = new Felhasznalo(email, jelszo);
+                                            FirebaseDatabase.getInstance().getReference("Felhasznalok")
+                                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                    .setValue(felhasznalo).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull @NotNull Task<Void> task) {
+                                                    if (task.isSuccessful())
+                                                    {
+                                                        Toast.makeText(getContext(), "Felhasználó sikeresen regisztrálva", Toast.LENGTH_LONG).show();
+                                                        progressBarRegisztracio.setVisibility(View.GONE);
+                                                        dialog2.dismiss();
+                                                        dialog.show();
+                                                    }
+                                                    else
+                                                    {
+                                                        Toast.makeText(getContext(), "Regisztráció nem sikerült!", Toast.LENGTH_LONG).show();
+                                                        progressBarRegisztracio.setVisibility(View.GONE);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            Toast.makeText(getContext(), "Regisztráció nem sikerült!", Toast.LENGTH_LONG).show();
+                                            progressBarRegisztracio.setVisibility(View.GONE);
+                                        }
+                                    }
+                                });
+                    }
+                });
+            }
+        });
+
+        buttonBejelentkezes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String email = editTextLoginEmail.getText().toString().trim();
+                String jelszo = editTextLoginJelszo.getText().toString().trim();
+
+                if (email.isEmpty())
+                {
+                    editTextLoginEmail.setError("E-mail cím nem lehet üres!");
+                    editTextLoginEmail.requestFocus();
+                }
+
+                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
+                {
+                    editTextLoginEmail.setError("E-mail formátuma nem megfelelő!");
+                    editTextLoginEmail.requestFocus();
+                    return;
+                }
+
+                if (jelszo.isEmpty())
+                {
+                    editTextLoginJelszo.setError("Jelszó nem lehet üres!");
+                    editTextLoginJelszo.requestFocus();
+                    return;
+                }
+
+                progressBarBejelentkezes.setVisibility(View.VISIBLE);
+
+                mAuth.signInWithEmailAndPassword(email, jelszo).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
+                        if (task.isSuccessful())
+                        {
+                            Toast.makeText(getContext(), "Sikeres bejelentkezés!", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            progressBarBejelentkezes.setVisibility(View.GONE);
+                        }
+                        else
+                        {
+                            Toast.makeText(getContext(), "Bejelentkezés sikertelen!", Toast.LENGTH_LONG).show();
+                            progressBarBejelentkezes.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            }
+        });
     }
 }
 

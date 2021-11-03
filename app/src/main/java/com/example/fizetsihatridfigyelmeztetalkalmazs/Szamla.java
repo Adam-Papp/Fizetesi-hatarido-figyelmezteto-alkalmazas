@@ -13,8 +13,9 @@ public class Szamla
     private String szamlaTipus;
     private String ismetlodesGyakorisag;
     private boolean elvegzett;
+    private String email;
 
-    public Szamla(String tn, int szo, String szh, String szt)
+    public Szamla(String tn, int szo, String szh, String szt, String em)
     {
         tetelNev = tn;
         szamlaOsszeg = szo;
@@ -22,9 +23,10 @@ public class Szamla
         szamlaTipus = szt;
         ismetlodesGyakorisag = null;
         elvegzett = false;
+        email = em;
     }
 
-    public Szamla(String tn, int szo, String szh, String szt, String ig)
+    public Szamla(String tn, int szo, String szh, String szt, String ig, String em)
     {
         tetelNev = tn;
         szamlaOsszeg = szo;
@@ -32,20 +34,10 @@ public class Szamla
         szamlaTipus = szt;
         ismetlodesGyakorisag = ig;
         elvegzett = false;
+        email = em;
     }
 
-    public Szamla(String tn, int szo, String szh, String szt, String ig, boolean e)
-    {
-        tetelNev = tn;
-        szamlaOsszeg = szo;
-        szamlaHatarido = szh;
-        szamlaTipus = szt;
-        ismetlodesGyakorisag = ig;
-        elvegzett = false;
-        elvegzett = e;
-    }
-
-    public Szamla(int id, String tn, int szo, String szh, String szt, String ig, boolean e)
+    public Szamla(int id, String tn, int szo, String szh, String szt, String ig, boolean e, String em)
     {
         this.id = id;
         tetelNev = tn;
@@ -55,6 +47,7 @@ public class Szamla
         ismetlodesGyakorisag = ig;
         elvegzett = false;
         elvegzett = e;
+        email = em;
     }
 
     public int getID() { return id; }
@@ -107,15 +100,25 @@ public class Szamla
         this.ismetlodesGyakorisag = ismetlodesGyakorisag;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public String toString() {
         return "Szamla{" +
-                "tetelNev='" + tetelNev + '\'' +
+                "id=" + id +
+                ", tetelNev='" + tetelNev + '\'' +
                 ", szamlaOsszeg=" + szamlaOsszeg +
                 ", szamlaHatarido='" + szamlaHatarido + '\'' +
                 ", szamlaTipus='" + szamlaTipus + '\'' +
                 ", ismetlodesGyakorisag='" + ismetlodesGyakorisag + '\'' +
                 ", elvegzett=" + elvegzett +
+                ", email='" + email + '\'' +
                 '}';
     }
 }

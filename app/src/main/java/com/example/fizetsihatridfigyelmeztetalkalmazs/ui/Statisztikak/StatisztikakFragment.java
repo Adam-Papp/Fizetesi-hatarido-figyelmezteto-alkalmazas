@@ -19,6 +19,7 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,8 +54,8 @@ public class StatisztikakFragment extends Fragment {
         textViewHaviAtlag = root.findViewById(R.id.textViewHaviAtlag);
         pieChartEvszakAtlagok = root.findViewById(R.id.pieChartEvszakAtlagok);
 
-        listaElvegzettSzamlak = dataBaseHelper.AdatbazisbolElvegzettekLekerese();
-        listaNemElvegzettSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese();
+        listaElvegzettSzamlak = dataBaseHelper.AdatbazisbolElvegzettekLekerese(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        listaNemElvegzettSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
         OsszesenBefizetettBeallítas();
         TovabbiakbanBefizetendoBeallitas();
@@ -162,7 +163,7 @@ public class StatisztikakFragment extends Fragment {
 
     private void ValutaBeallitas()
     {
-        String valuta = dataBaseHelper.getValuta();
+        String valuta = dataBaseHelper.getValuta(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         if (valuta.equals("HUF"))
         {
             textViewOsszesenBefizetett.setText(textViewOsszesenBefizetett.getText() + " Ft");

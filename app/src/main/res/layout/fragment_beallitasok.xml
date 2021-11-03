@@ -10,7 +10,7 @@
 
     <Button
         android:id="@+id/buttonMentes"
-        android:layout_width="146dp"
+        android:layout_width="125dp"
         android:layout_height="61dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
@@ -117,5 +117,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView8" />
+
+    <Button
+        android:id="@+id/buttonKijelentkezes"
+        android:layout_width="210dp"
+        android:layout_height="61dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="1"
+        android:backgroundTint="#4E3838"
+        android:text="Kijelentkezés"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

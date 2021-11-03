@@ -9,6 +9,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_SZAMLA_TIPUS = "SZAMLA_TIPUS";
     public static final String COLUMN_ISMETLODES_GYAKORISAG = "ISMETLODES_GYAKORISAG";
     public static final String COLUMN_ELVEGZETT = "ELVEGZETT";
+    public static final String COLUMN_EMAIL = "EMAIL";
 
 
     // Beállítások tábla attribútumok
@@ -34,6 +37,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ERTESITES_IDOPONT = "ERTESITES_IDOPONT";
     public static final String COLUMN_ERTESITES_MOD = "ERTESITES_MOD";
     public static final String COLUMN_VALUTA = "VALUTA";
+    public static final String COLUMN_EMAIL_BEALLITASOK = "EMAIL";
 
     public DataBaseHelper(@Nullable Context context) {
         super(context, "szamlak.db", null, 1);
@@ -42,9 +46,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        String createTableStatement = "CREATE TABLE " + SZAMLA_TABLA + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_TETEL_NEV + " TEXT, " + COLUMN_SZAMLA_OSSZEG + " INTEGER, " + COLUMN_SZAMLA_HATARIDO + " TEXT, " + COLUMN_SZAMLA_TIPUS + " TEXT, " + COLUMN_ISMETLODES_GYAKORISAG + " TEXT, " + COLUMN_ELVEGZETT + " BOOL)";
+        String createTableStatement = "CREATE TABLE " + SZAMLA_TABLA + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_TETEL_NEV + " TEXT, " + COLUMN_SZAMLA_OSSZEG + " INTEGER, " + COLUMN_SZAMLA_HATARIDO + " TEXT, " + COLUMN_SZAMLA_TIPUS + " TEXT, " + COLUMN_ISMETLODES_GYAKORISAG + " TEXT, " + COLUMN_ELVEGZETT + " BOOL, " + COLUMN_EMAIL + " TEXT)";
 
-        String createTableStatement2 = "CREATE TABLE " + BEALLITASOK_TABLA + " (" + COLUMN_ERTESITES + " TEXT, " + COLUMN_ERTESITES_IDOPONT + " TIME, " + COLUMN_ERTESITES_MOD + " TEXT, " + COLUMN_VALUTA + " TEXT)";
+        String createTableStatement2 = "CREATE TABLE " + BEALLITASOK_TABLA + " (" + COLUMN_ERTESITES + " TEXT, " + COLUMN_ERTESITES_IDOPONT + " TIME, " + COLUMN_ERTESITES_MOD + " TEXT, " + COLUMN_VALUTA + " TEXT, " + COLUMN_EMAIL_BEALLITASOK + " TEXT)";
 
         db.execSQL(createTableStatement);
         db.execSQL(createTableStatement2);
@@ -59,11 +63,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 
 
-    public List<Szamla> AdatbazisbolOsszesLekerese()
+
+    public List<Szamla> AdatbazisbolNemElvegzettekLekerese(String email)
     {
         List<Szamla> returnList = new ArrayList<>();
 
-        String queryString = "SELECT * FROM " + SZAMLA_TABLA;
+        String queryString = "SELECT * FROM " + SZAMLA_TABLA + " WHERE " + COLUMN_ELVEGZETT + " = 0 AND " + COLUMN_EMAIL + " = '" + email + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -79,8 +84,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 String szamlaTipus = cursor.getString(4);
                 String ismetlodesGyakorisag = cursor.getString(5);
                 boolean elvegzett = cursor.getInt(6) == 1 ? true: false;
+                String em = cursor.getString(7);
 
-                Szamla sz = new Szamla(id, tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
+                Szamla sz = new Szamla(id, tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett, em);
 
                 returnList.add(sz);
 
@@ -101,11 +107,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 
 
-    public List<Szamla> AdatbazisbolNemElvegzettekLekerese()
+    public List<Szamla> AdatbazisbolElvegzettekLekerese(String email)
     {
         List<Szamla> returnList = new ArrayList<>();
 
-        String queryString = "SELECT * FROM " + SZAMLA_TABLA + " WHERE " + COLUMN_ELVEGZETT + " = 0";
+        String queryString = "SELECT * FROM " + SZAMLA_TABLA + " WHERE " + COLUMN_ELVEGZETT + " = 1 AND " + COLUMN_EMAIL + " = '" + email + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -121,50 +127,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 String szamlaTipus = cursor.getString(4);
                 String ismetlodesGyakorisag = cursor.getString(5);
                 boolean elvegzett = cursor.getInt(6) == 1 ? true: false;
+                String em = cursor.getString(7);
 
-                Szamla sz = new Szamla(id, tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
-
-                returnList.add(sz);
-
-            } while (cursor.moveToNext());
-        }
-        else
-        {
-
-        }
-
-        cursor.close();
-        db.close();
-
-        return returnList;
-    }
-
-
-
-
-
-    public List<Szamla> AdatbazisbolElvegzettekLekerese()
-    {
-        List<Szamla> returnList = new ArrayList<>();
-
-        String queryString = "SELECT * FROM " + SZAMLA_TABLA + " WHERE " + COLUMN_ELVEGZETT + " = 1";
-
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.rawQuery(queryString, null);
-
-        if (cursor.moveToFirst())
-        {
-            do {
-                int id = cursor.getInt(0);
-                String tetelNev = cursor.getString(1);
-                int szamlaOsszeg = cursor.getInt(2);
-                String szamlaHatarido = cursor.getString(3);
-                String szamlaTipus = cursor.getString(4);
-                String ismetlodesGyakorisag = cursor.getString(5);
-                boolean elvegzett = cursor.getInt(6) == 1 ? true: false;
-
-                Szamla sz = new Szamla(id, tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett);
+                Szamla sz = new Szamla(id, tetelNev, szamlaOsszeg, szamlaHatarido, szamlaTipus, ismetlodesGyakorisag, elvegzett, em);
 
                 returnList.add(sz);
 
@@ -199,6 +164,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_SZAMLA_TIPUS, sz.getSzamlaTipus());
         cv.put(COLUMN_ISMETLODES_GYAKORISAG, sz.getIsmetlodesGyakorisag());
         cv.put(COLUMN_ELVEGZETT, sz.isElvegzett());
+        cv.put(COLUMN_EMAIL, sz.getEmail());
 
         long insert = db.insert(SZAMLA_TABLA, null, cv);
 
@@ -218,10 +184,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     {
         String queryString = "UPDATE " + SZAMLA_TABLA +
                                 " SET " + COLUMN_ELVEGZETT + " = 1 " +
-                                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+                                "WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'" + " AND " + COLUMN_EMAIL + " = '" + sz.getEmail() + "'";
 
-
-        //UPDATE SZAMLA_TABLA SET ELVEGZETT = 1 WHERE TETEL_NEV = sz.getTetelNev() AND SZAMLA_HATARIDO = sz.getSzamlaHatarido();
 
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(queryString);
@@ -231,7 +195,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void Torles(Szamla sz)
     {
         String queryString = "DELETE FROM " + SZAMLA_TABLA +
-                " WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'";
+                " WHERE " + COLUMN_TETEL_NEV + " = '" + sz.getTetelNev() + "' AND " + COLUMN_SZAMLA_HATARIDO + " = '" + sz.getSzamlaHatarido() + "'" + " AND " + COLUMN_EMAIL + " = '" + sz.getEmail() + "'";
 
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -249,11 +213,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<String> AdatbazisbolBeallitasokLekerese()
+    public List<String> AdatbazisbolBeallitasokLekerese(String em)
     {
         List<String> returnList = new ArrayList<>();
 
-        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA;
+        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA + " WHERE " + COLUMN_EMAIL_BEALLITASOK + " = '" + em + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -285,11 +249,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return returnList;
     }
 
-    public void BeallitasokMentese(String ertesites, String ertesitesIdopontja, String ertesitesiMod, String valuta)
+    public void BeallitasokMentese(String ertesites, String ertesitesIdopontja, String ertesitesiMod, String valuta, String em)
     {
         String queryString = "UPDATE " + BEALLITASOK_TABLA +
                 " SET " + COLUMN_ERTESITES + " = '" + ertesites + "', " + COLUMN_ERTESITES_IDOPONT + " = " + ertesitesIdopontja + ", " +
-                COLUMN_ERTESITES_MOD + " = '" + ertesitesiMod + "', " + COLUMN_VALUTA + " = '" + valuta + "'";
+                COLUMN_ERTESITES_MOD + " = '" + ertesitesiMod + "', " + COLUMN_VALUTA + " = '" + valuta + "' WHERE " + COLUMN_EMAIL_BEALLITASOK + " = '" + em + "'";
 
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -297,11 +261,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public String getValuta()
+    public String getValuta(String em)
     {
         String returnString = "";
 
-        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA;
+        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA + " WHERE " + COLUMN_EMAIL_BEALLITASOK + " = '" + em + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -335,7 +299,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         String queryString = "UPDATE " + SZAMLA_TABLA +
                 " SET " + COLUMN_TETEL_NEV + " = '" + ujnev + "' " +
-                "WHERE " + COLUMN_ID + " = " + sz.getID();
+                "WHERE " + COLUMN_ID + " = " + sz.getID() + " AND " + COLUMN_EMAIL + " = '" + FirebaseAuth.getInstance().getCurrentUser().getEmail() + "'";
 
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -351,7 +315,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         String queryString = "UPDATE " + SZAMLA_TABLA +
                 " SET " + COLUMN_SZAMLA_OSSZEG + " = " + ujosszeg + " " +
-                "WHERE " + COLUMN_ID + " = " + sz.getID();
+                "WHERE " + COLUMN_ID + " = " + sz.getID() + " AND " + COLUMN_EMAIL + " = '" + FirebaseAuth.getInstance().getCurrentUser().getEmail() + "'";
 
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(queryString);
@@ -366,7 +330,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         String queryString = "UPDATE " + SZAMLA_TABLA +
                 " SET " + COLUMN_SZAMLA_HATARIDO + " = '" + ujhatido + "' " +
-                "WHERE " + COLUMN_ID + " = " + sz.getID();
+                "WHERE " + COLUMN_ID + " = " + sz.getID() + " AND " + COLUMN_EMAIL + " = '" + FirebaseAuth.getInstance().getCurrentUser().getEmail() + "'";
 
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -382,7 +346,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         String queryString = "UPDATE " + SZAMLA_TABLA +
                 " SET " + COLUMN_SZAMLA_TIPUS + " = '" + ujtipus + "' " +
-                "WHERE " + COLUMN_ID + " = " + sz.getID();
+                "WHERE " + COLUMN_ID + " = " + sz.getID() + " AND " + COLUMN_EMAIL + " = '" + FirebaseAuth.getInstance().getCurrentUser().getEmail() + "'";
 
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -398,7 +362,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         String queryString = "UPDATE " + SZAMLA_TABLA +
                 " SET " + COLUMN_ISMETLODES_GYAKORISAG + " = '" + ujgyakorisag + "' " +
-                "WHERE " + COLUMN_ID + " = " + sz.getID();
+                "WHERE " + COLUMN_ID + " = " + sz.getID() + " AND " + COLUMN_EMAIL + " = '" + FirebaseAuth.getInstance().getCurrentUser().getEmail() + "'";
 
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -422,7 +386,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     {
         String returnString = "";
 
-        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA;
+        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA + " WHERE " + COLUMN_EMAIL + " = '" + FirebaseAuth.getInstance().getCurrentUser().getEmail() + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -452,7 +416,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     {
         String returnString = "";
 
-        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA;
+        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA + " WHERE " + COLUMN_EMAIL + " = '" + FirebaseAuth.getInstance().getCurrentUser().getEmail() + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -482,7 +446,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     {
         String returnString = "";
 
-        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA;
+        String queryString = "SELECT * FROM " + BEALLITASOK_TABLA + " WHERE " + COLUMN_EMAIL + " = '" + FirebaseAuth.getInstance().getCurrentUser().getEmail() + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -518,6 +482,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_ERTESITES_IDOPONT, "1200");
         cv.put(COLUMN_ERTESITES_MOD,  "Rendszer értesítés");
         cv.put(COLUMN_VALUTA, "HUF");
+        cv.put(COLUMN_EMAIL_BEALLITASOK, FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
         long insert = db.insert(BEALLITASOK_TABLA, null, cv);
 

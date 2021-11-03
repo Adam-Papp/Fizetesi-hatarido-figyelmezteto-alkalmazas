@@ -70,10 +70,16 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        BelejentkezesDialog();
+        BejelentkezesDialog();
     }
 
-    private void BelejentkezesDialog() {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mAuth.signOut();
+    }
+
+    public void BejelentkezesDialog() {
         dialogBuilder = new AlertDialog.Builder(this);
         final View loginPopupView = getLayoutInflater().inflate(R.layout.loginpopup, null);
 

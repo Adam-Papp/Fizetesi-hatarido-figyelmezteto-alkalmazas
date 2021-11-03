@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.text.ParseException;
@@ -58,7 +60,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         holder.textViewSzamlaOsszeg.setText(String.valueOf(mData.get(position).getSzamlaOsszeg()));
         holder.textViewSzamlaHatarido.setText(mData.get(position).getSzamlaHatarido());
 
-        String valuta = dataBaseHelper.getValuta();
+        String valuta = dataBaseHelper.getValuta(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         Log.d("valuta", "valuta értéke: " + valuta);
         switch (valuta)
         {

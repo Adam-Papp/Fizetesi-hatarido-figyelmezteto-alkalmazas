@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "907729745929",
+    "project_id": "szamla-6aa91",
+    "storage_bucket": "szamla-6aa91.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:907729745929:android:b8a6086be5c50f1df8a0d8",
+        "android_client_info": {
+          "package_name": "com.example.fizetsihatridfigyelmeztetalkalmazs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "907729745929-ml1kqpv1qs7tsoicpj7p76rfgb62vst1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYu-cBafuiA34fUoUx2F0wxAtx3w1zzyk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "907729745929-ml1kqpv1qs7tsoicpj7p76rfgb62vst1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
