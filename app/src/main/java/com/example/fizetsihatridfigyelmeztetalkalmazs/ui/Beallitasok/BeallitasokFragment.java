@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.fizetsihatridfigyelmeztetalkalmazs.DataBaseHelper;
@@ -37,6 +38,7 @@ public class BeallitasokFragment extends Fragment {
 
     Spinner spinnerErtesites, spinnerErtesitesiMod, spinnerValuta;
     EditText editTextErtesitesIdopontja;
+    TextView textViewBejelentkezettEmail;
     DataBaseHelper dataBaseHelper;
     Button buttonMentes, buttonKijelentkezes;
     ProgressBar progressBar;
@@ -55,12 +57,14 @@ public class BeallitasokFragment extends Fragment {
         spinnerErtesitesiMod = root.findViewById(R.id.spinnerErtesitesiMod);
         spinnerValuta = root.findViewById(R.id.spinnerValuta);
         editTextErtesitesIdopontja = root.findViewById(R.id.editTextErtesitesIdopontja);
+        textViewBejelentkezettEmail = root.findViewById(R.id.textViewBejelentkezettEmail);
         buttonMentes = root.findViewById(R.id.buttonMentes);
         buttonKijelentkezes = root.findViewById(R.id.buttonKijelentkezes);
         progressBar = root.findViewById(R.id.progressBar);
 
         dataBaseHelper = new DataBaseHelper(getActivity());
         listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese(auth.getCurrentUser().getEmail());
+        textViewBejelentkezettEmail.setText(auth.getCurrentUser().getEmail());
 
 
         if (listBeallitasok.size() == 0)

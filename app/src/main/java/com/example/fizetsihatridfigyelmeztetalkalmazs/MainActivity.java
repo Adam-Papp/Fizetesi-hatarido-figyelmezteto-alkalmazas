@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         dialogBuilder.setView(loginPopupView);
         dialog = dialogBuilder.create();
         dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
         dialog.show();
 
         textViewRegisztracio.setOnClickListener(new View.OnClickListener() {
@@ -125,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 dialogBuilder2.setView(regisztracioPopupView);
                 dialog2 = dialogBuilder2.create();
                 dialog2.setCanceledOnTouchOutside(false);
+                dialog2.setCancelable(false);
                 dialog2.show();
 
 
