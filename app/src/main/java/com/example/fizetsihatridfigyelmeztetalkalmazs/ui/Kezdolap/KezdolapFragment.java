@@ -48,7 +48,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fizetsihatridfigyelmeztetalkalmazs.DataBaseHelper;
-//import com.example.fizetsihatridfigyelmeztetalkalmazs.EmailService;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.Felhasznalo;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.MainActivity;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.MyRecyclerViewAdapter;
@@ -1181,7 +1180,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
     {
         String fromEmail = "szamlaalkalmazas@gmail.com";
         String fromPassword = "SzamlaAlkalmazas1";
-        String toEmails = "adam.papp2326@gmail.com";
+        String toEmails = mAuth.getCurrentUser().getEmail();
         String emailSubject = "Számla Értesítés!";
         String emailBody = contentText + " " + szamlaCounter + "db számla esedékes.";
         new SendMailTask(getActivity()).execute(fromEmail,
@@ -1347,16 +1346,3 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         Log.d("timeChangedReceiver", "Notification lefutott");
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

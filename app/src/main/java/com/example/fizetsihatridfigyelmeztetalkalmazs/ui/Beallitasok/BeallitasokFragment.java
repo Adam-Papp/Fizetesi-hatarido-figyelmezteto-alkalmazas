@@ -41,7 +41,7 @@ public class BeallitasokFragment extends Fragment {
     TextView textViewBejelentkezettEmail;
     DataBaseHelper dataBaseHelper;
     Button buttonMentes, buttonKijelentkezes;
-    ProgressBar progressBar;
+    ProgressBar progressBarBeallitasok;
 
     List<String> listBeallitasok = new ArrayList<>();
 
@@ -60,18 +60,13 @@ public class BeallitasokFragment extends Fragment {
         textViewBejelentkezettEmail = root.findViewById(R.id.textViewBejelentkezettEmail);
         buttonMentes = root.findViewById(R.id.buttonMentes);
         buttonKijelentkezes = root.findViewById(R.id.buttonKijelentkezes);
-        progressBar = root.findViewById(R.id.progressBar);
+        progressBarBeallitasok = root.findViewById(R.id.progressBarBeallitasok);
 
         dataBaseHelper = new DataBaseHelper(getActivity());
         listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese(auth.getCurrentUser().getEmail());
         textViewBejelentkezettEmail.setText(auth.getCurrentUser().getEmail());
 
 
-        if (listBeallitasok.size() == 0)
-        {
-            dataBaseHelper.AlapBeallitasokHozzaadasa();
-            listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese(auth.getCurrentUser().getEmail());
-        }
 
         int ertesitesPos = getErtesitesPos();
         int ertesitesModPos = getErtesitesModPos();
@@ -82,7 +77,7 @@ public class BeallitasokFragment extends Fragment {
         buttonMentes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
+                progressBarBeallitasok.setVisibility(View.VISIBLE);
                 Log.d("beall", "beallitasokmentese lefutott");
                 if (editTextErtesitesIdopontja.getText().toString().length() < 3 )
                 {
@@ -93,16 +88,18 @@ public class BeallitasokFragment extends Fragment {
                     dataBaseHelper.BeallitasokMentese(spinnerErtesites.getSelectedItem().toString(), editTextErtesitesIdopontja.getText().toString().replace(":", "")
                             , spinnerErtesitesiMod.getSelectedItem().toString(), spinnerValuta.getSelectedItem().toString(), auth.getCurrentUser().getEmail());
                 }
-                progressBar.setVisibility(View.INVISIBLE);
+                progressBarBeallitasok.setVisibility(View.INVISIBLE);
             }
         });
 
         buttonKijelentkezes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressBarBeallitasok.setVisibility(View.VISIBLE);
                 FirebaseAuth.getInstance().signOut();
                 ProcessPhoenix.triggerRebirth(getContext());
                 Toast.makeText(getContext(), "Sikeres kijelentkezés!", Toast.LENGTH_SHORT).show();
+                progressBarBeallitasok.setVisibility(View.INVISIBLE);
             }
         });
 

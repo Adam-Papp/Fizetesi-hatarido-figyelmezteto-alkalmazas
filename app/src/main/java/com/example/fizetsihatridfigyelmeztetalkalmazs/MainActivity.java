@@ -35,6 +35,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Kezdolap.KezdolapFragment;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
 import org.jetbrains.annotations.NotNull;
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("reg", "rákattintottál a regisztrációra");
-                dialog.hide();
+                dialog.cancel();
 
                 AlertDialog.Builder dialogBuilder2 = new AlertDialog.Builder(MainActivity.this);
                 final View regisztracioPopupView = getLayoutInflater().inflate(R.layout.regisztraciopopup, null);
@@ -115,12 +116,14 @@ public class MainActivity extends AppCompatActivity {
                 EditText editTextRegEmail, editTextRegJelszo, editTextRegJelszo2;
                 Button buttonRegisztracio;
                 ProgressBar progressBarRegisztracio;
+                ImageView imageViewVissza;
 
                 editTextRegEmail = regisztracioPopupView.findViewById(R.id.editTextRegEmail);
                 editTextRegJelszo = regisztracioPopupView.findViewById(R.id.editTextRegJelszo);
                 editTextRegJelszo2 = regisztracioPopupView.findViewById(R.id.editTextRegJelszo2);
                 buttonRegisztracio = regisztracioPopupView.findViewById(R.id.buttonRegisztracio);
                 progressBarRegisztracio = regisztracioPopupView.findViewById(R.id.progressBarRegisztracio);
+                imageViewVissza = regisztracioPopupView.findViewById(R.id.imageViewVissza);
 
 
                 dialogBuilder2.setView(regisztracioPopupView);
@@ -129,6 +132,14 @@ public class MainActivity extends AppCompatActivity {
                 dialog2.setCancelable(false);
                 dialog2.show();
 
+
+                imageViewVissza.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog2.cancel();
+                        dialog.show();
+                    }
+                });
 
                 buttonRegisztracio.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -167,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
                         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
                         {
-                            editTextRegEmail.setError("E-mail formátuma nem megfelelő!");
+                            editTextRegEmail.setError("E-mail formátum nem megfelelő!");
                             editTextRegEmail.requestFocus();
                             return;
                         }
@@ -187,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                                                 public void onComplete(@NonNull @NotNull Task<Void> task) {
                                                     if (task.isSuccessful())
                                                     {
-                                                        Toast.makeText(MainActivity.this, "Felhasználó sikeresen regisztrálva", Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(MainActivity.this, "Felhasználó sikeresen regisztrálva.", Toast.LENGTH_LONG).show();
                                                         progressBarRegisztracio.setVisibility(View.GONE);
                                                         dialog2.dismiss();
                                                         dialog.show();
@@ -207,6 +218,44 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
                                 });
+                    }
+                });
+            }
+        });
+
+        textViewElfelejtettJelszo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String email = editTextLoginEmail.getText().toString().trim();
+
+                if (email.isEmpty())
+                {
+                    editTextLoginEmail.setError("Kérem írja be az e-mail címét!");
+                    editTextLoginEmail.requestFocus();
+                    return;
+                }
+
+                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
+                {
+                    editTextLoginEmail.setError("E-mail formátum nem megfelelő!");
+                    editTextLoginEmail.requestFocus();
+                    return;
+                }
+
+                progressBarBejelentkezes.setVisibility(View.VISIBLE);
+                mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                        if (task.isSuccessful())
+                        {
+                            Toast.makeText(MainActivity.this, "Jelszó visszaállító email elküldve!", Toast.LENGTH_LONG).show();
+                            progressBarBejelentkezes.setVisibility(View.INVISIBLE);
+                        }
+                        else
+                        {
+                            Toast.makeText(MainActivity.this, "Hiba történt, próbálja újra!", Toast.LENGTH_LONG).show();
+                            progressBarBejelentkezes.setVisibility(View.INVISIBLE);
+                        }
                     }
                 });
             }
@@ -245,9 +294,19 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull @NotNull Task<AuthResult> task) {
                         if (task.isSuccessful())
                         {
-                            Toast.makeText(MainActivity.this, "Sikeres bejelentkezés!", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            progressBarBejelentkezes.setVisibility(View.GONE);
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user.isEmailVerified())
+                            {
+                                Toast.makeText(MainActivity.this, "Sikeres bejelentkezés!", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                progressBarBejelentkezes.setVisibility(View.GONE);
+                            }
+                            else
+                            {
+                                user.sendEmailVerification();
+                                Toast.makeText(MainActivity.this, "Erősítse meg az e-mail címét!", Toast.LENGTH_LONG).show();
+                                progressBarBejelentkezes.setVisibility(View.GONE);
+                            }
                         }
                         else
                         {

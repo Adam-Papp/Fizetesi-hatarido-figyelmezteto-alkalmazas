@@ -61,6 +61,10 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         holder.textViewSzamlaHatarido.setText(mData.get(position).getSzamlaHatarido());
 
         String valuta = dataBaseHelper.getValuta(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        if (valuta == "") {
+            dataBaseHelper.AlapBeallitasokHozzaadasa();
+            valuta = dataBaseHelper.getValuta(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        }
         Log.d("valuta", "valuta értéke: " + valuta);
         switch (valuta)
         {

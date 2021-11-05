@@ -59,17 +59,30 @@
 
     <Button
         android:id="@+id/buttonRegisztracio"
-        android:layout_width="wrap_content"
-        android:layout_height="61dp"
-        android:layout_marginTop="60dp"
+        android:layout_width="207dp"
+        android:layout_height="62dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="50dp"
         android:layout_weight="1"
         android:backgroundTint="#4E3838"
         android:text="Regisztráció"
         android:textAlignment="center"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.56"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextRegJelszo2" />
+
+    <ImageView
+        android:id="@+id/imageViewVissza"
+        android:layout_width="49dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="60dp"
+        app:layout_constraintEnd_toStartOf="@+id/buttonRegisztracio"
+        app:layout_constraintHorizontal_bias="0.35"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextRegJelszo2"
+        app:srcCompat="@drawable/ic_baseline_arrow_back_ios_24" />
 
     <Space
         android:id="@+id/space"
