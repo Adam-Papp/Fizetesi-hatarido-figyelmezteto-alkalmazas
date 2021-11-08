@@ -3,6 +3,8 @@ package com.example.fizetsihatridfigyelmeztetalkalmazs.ui.Beallitasok;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
@@ -45,6 +47,9 @@ public class BeallitasokFragment extends Fragment {
 
     List<String> listBeallitasok = new ArrayList<>();
 
+    AlertDialog.Builder dialogBuilder;
+    Dialog dialog;
+
     FirebaseAuth auth;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -81,12 +86,15 @@ public class BeallitasokFragment extends Fragment {
                 Log.d("beall", "beallitasokmentese lefutott");
                 if (editTextErtesitesIdopontja.getText().toString().length() < 3 )
                 {
-                    Toast.makeText(getContext(), "Hiba történt az Értesítés időpontja mentésénél", Toast.LENGTH_SHORT).show();
+                    editTextErtesitesIdopontja.setError("Érvénytelen időpont!");
+                    editTextErtesitesIdopontja.requestFocus();
+                    return;
                 }
                 else
                 {
                     dataBaseHelper.BeallitasokMentese(spinnerErtesites.getSelectedItem().toString(), editTextErtesitesIdopontja.getText().toString().replace(":", "")
                             , spinnerErtesitesiMod.getSelectedItem().toString(), spinnerValuta.getSelectedItem().toString(), auth.getCurrentUser().getEmail());
+                    Toast.makeText(getContext(), "Beállítások sikeresen mentve.", Toast.LENGTH_LONG).show();
                 }
                 progressBarBeallitasok.setVisibility(View.INVISIBLE);
             }
@@ -95,11 +103,35 @@ public class BeallitasokFragment extends Fragment {
         buttonKijelentkezes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressBarBeallitasok.setVisibility(View.VISIBLE);
-                FirebaseAuth.getInstance().signOut();
-                ProcessPhoenix.triggerRebirth(getContext());
-                Toast.makeText(getContext(), "Sikeres kijelentkezés!", Toast.LENGTH_SHORT).show();
-                progressBarBeallitasok.setVisibility(View.INVISIBLE);
+                dialogBuilder = new AlertDialog.Builder(getContext());
+                final View kijelentkezesPopupView = getLayoutInflater().inflate(R.layout.kijelentkezespopup, null);
+
+                Button buttonIgen, buttonMegse;
+
+                buttonIgen = kijelentkezesPopupView.findViewById(R.id.buttonIgen2);
+                buttonMegse = kijelentkezesPopupView.findViewById(R.id.buttonMegse3);
+
+                dialogBuilder.setView(kijelentkezesPopupView);
+                dialog = dialogBuilder.create();
+                dialog.show();
+
+                buttonIgen.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        progressBarBeallitasok.setVisibility(View.VISIBLE);
+                        FirebaseAuth.getInstance().signOut();
+                        ProcessPhoenix.triggerRebirth(getContext());
+                        Toast.makeText(getContext(), "Sikeres kijelentkezés!", Toast.LENGTH_SHORT).show();
+                        progressBarBeallitasok.setVisibility(View.INVISIBLE);
+                    }
+                });
+
+                buttonMegse.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.cancel();
+                    }
+                });
             }
         });
 

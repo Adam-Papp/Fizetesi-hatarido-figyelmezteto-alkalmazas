@@ -201,7 +201,9 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 List<Szamla> listaKeresettSzamlak = new ArrayList<>();
 
                 for (Szamla sz : listaSzamlak) {
-                    if (sz.getTetelNev().toLowerCase().contains(editTextSzamlaNev.getText().toString().toLowerCase()))
+                    if (sz.getTetelNev().toLowerCase().contains(editTextSzamlaNev.getText().toString().toLowerCase())
+                    || sz.getSzamlaHatarido().toLowerCase().contains(editTextSzamlaNev.getText().toString().toLowerCase())
+                    || String.valueOf(sz.getSzamlaOsszeg()).contains(editTextSzamlaNev.getText().toString()))
                         listaKeresettSzamlak.add(sz);
                 }
 
@@ -1023,6 +1025,9 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
 
     public void Ertesites()
     {
+        if (mAuth.getCurrentUser() == null)
+            return;
+
         String ertesites = dataBaseHelper.getErtesites();
         String ertesitesIdopont = dataBaseHelper.getErtesitesIdopont();
         String ertesitesMod = dataBaseHelper.getErtesitesMod();

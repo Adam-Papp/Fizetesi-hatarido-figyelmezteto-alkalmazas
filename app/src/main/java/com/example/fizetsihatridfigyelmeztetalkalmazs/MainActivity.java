@@ -271,6 +271,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     editTextLoginEmail.setError("E-mail cím nem lehet üres!");
                     editTextLoginEmail.requestFocus();
+                    return;
                 }
 
                 if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
