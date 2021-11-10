@@ -69,6 +69,10 @@ public class BeallitasokFragment extends Fragment {
 
         dataBaseHelper = new DataBaseHelper(getActivity());
         listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese(auth.getCurrentUser().getEmail());
+//        if (listBeallitasok.size() == 0) {
+//            dataBaseHelper.AlapBeallitasokHozzaadasa();
+//            listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese(auth.getCurrentUser().getEmail());
+//        }
         textViewBejelentkezettEmail.setText(auth.getCurrentUser().getEmail());
 
 

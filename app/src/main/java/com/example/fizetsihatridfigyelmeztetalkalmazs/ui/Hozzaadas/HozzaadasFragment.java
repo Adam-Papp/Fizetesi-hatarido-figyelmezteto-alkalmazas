@@ -41,7 +41,7 @@ public class HozzaadasFragment extends Fragment {
     RadioButton radioButtonEgyszeri, radioButtonIsmetlodo;
     RadioGroup radioGroupTipus;
     Spinner spinnerIsmetlodes;
-    Button buttonHozzaadas, buttonMegsem;
+    Button buttonHozzaadas, buttonTorles;
     final Calendar myCalendar = Calendar.getInstance();
     FirebaseAuth auth;
 
@@ -59,7 +59,7 @@ public class HozzaadasFragment extends Fragment {
         radioGroupTipus = root.findViewById(R.id.radioGroupTipus);
         spinnerIsmetlodes = root.findViewById(R.id.spinnerIsmetlodes);
         buttonHozzaadas = root.findViewById(R.id.buttonHozzaadas);
-        buttonMegsem = root.findViewById(R.id.buttonTorles);
+        buttonTorles = root.findViewById(R.id.buttonTorles);
 
         editTextTetelNev.setText("");
         editTextOsszeg.setText("");
@@ -252,7 +252,7 @@ public class HozzaadasFragment extends Fragment {
         });
 
 
-        buttonMegsem.setOnClickListener(new View.OnClickListener() {
+        buttonTorles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v)
             {
@@ -260,6 +260,7 @@ public class HozzaadasFragment extends Fragment {
                 editTextOsszeg.setText("");
                 editTextTetelNev.setText("");
                 radioButtonEgyszeri.toggle();
+                editTextTetelNev.requestFocus();
             }
         });
 

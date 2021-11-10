@@ -40,6 +40,9 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
 
     AlertDialog.Builder dialogBuilder;
     Dialog dialog;
+
+    DataBaseHelper dataBaseHelper;
+    List<String> listBeallitasok = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         mAuth = FirebaseAuth.getInstance();
+        dataBaseHelper = new DataBaseHelper(MainActivity.this);
 
         BejelentkezesDialog();
     }
@@ -301,6 +308,10 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "Sikeres bejelentkezés!", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                                 progressBarBejelentkezes.setVisibility(View.GONE);
+                                listBeallitasok = dataBaseHelper.AdatbazisbolBeallitasokLekerese(mAuth.getCurrentUser().getEmail());
+                                if (listBeallitasok.size() == 0) {
+                                    dataBaseHelper.AlapBeallitasokHozzaadasa();
+                                }
                             }
                             else
                             {

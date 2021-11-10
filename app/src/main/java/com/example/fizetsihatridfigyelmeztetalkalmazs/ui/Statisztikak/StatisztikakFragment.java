@@ -180,13 +180,21 @@ public class StatisztikakFragment extends Fragment {
             textViewHaviAtlag.setText("€ " + textViewHaviAtlag.getText());
             devizaJel = "€";
         }
-        else
+        else if (valuta.equals("USD"))
         {
             textViewOsszesenBefizetett.setText("$ " + textViewOsszesenBefizetett.getText());
             textViewTovabbiakbanBefizetendo.setText("$ " + textViewTovabbiakbanBefizetendo.getText());
             textViewElmulasztott.setText("$ " + textViewElmulasztott.getText());
             textViewHaviAtlag.setText("$ " + textViewHaviAtlag.getText());
             devizaJel = "$";
+        }
+        else
+        {
+            textViewOsszesenBefizetett.setText("");
+            textViewTovabbiakbanBefizetendo.setText("");
+            textViewElmulasztott.setText("");
+            textViewHaviAtlag.setText("");
+            devizaJel = "";
         }
     }
 
