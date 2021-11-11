@@ -359,17 +359,6 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         List<Szamla> returnLista = new ArrayList<>();
         returnLista.addAll(lista);
 
-//        Locale magyar = new Locale("hu");
-//        Collator magyarCollator = Collator.getInstance(magyar);
-//
-//        magyarCollator.compare(returnLista, new Comparator<Szamla>() {
-//            @Override
-//            public int compare(Szamla o1, Szamla o2) {
-//                return o1.getTetelNev().compareToIgnoreCase(o2.getTetelNev());
-//            }
-//        });
-
-
         Collections.sort(returnLista, new Comparator<Szamla>() {
             @Override
             public int compare(Szamla o1, Szamla o2) {
