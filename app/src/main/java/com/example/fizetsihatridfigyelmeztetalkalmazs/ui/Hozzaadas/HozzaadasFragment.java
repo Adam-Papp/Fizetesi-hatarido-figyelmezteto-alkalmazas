@@ -122,14 +122,14 @@ public class HozzaadasFragment extends Fragment {
                     return;
                 }
 
-                if (editTextOsszeg.toString().isEmpty())
+                if (editTextOsszeg.getText().toString().isEmpty())
                 {
                     editTextOsszeg.setError("Összeg nem lehet üres!");
                     editTextOsszeg.requestFocus();
                     return;
                 }
 
-                if (editTextHatarido.toString().isEmpty())
+                if (editTextHatarido.getText().toString().isEmpty())
                 {
                     editTextHatarido.setError("Határidő nem lehet üres!");
                     editTextHatarido.requestFocus();

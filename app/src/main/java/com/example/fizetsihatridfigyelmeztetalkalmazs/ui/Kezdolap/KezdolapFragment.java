@@ -15,10 +15,7 @@ import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.text.InputType;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,11 +28,9 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,20 +43,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fizetsihatridfigyelmeztetalkalmazs.DataBaseHelper;
-import com.example.fizetsihatridfigyelmeztetalkalmazs.Felhasznalo;
-import com.example.fizetsihatridfigyelmeztetalkalmazs.MainActivity;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.MyRecyclerViewAdapter;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.R;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.SendMailTask;
 import com.example.fizetsihatridfigyelmeztetalkalmazs.Szamla;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -73,6 +60,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -109,7 +97,11 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0) {
                 Log.v("timeChangedReceiver", "timeChangedReceiver");
-                Ertesites();
+                try {
+                    Ertesites();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     };
@@ -1012,15 +1004,19 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         });
     }
 
-    public void Ertesites()
-    {
+    public void Ertesites() throws Exception {
         if (mAuth.getCurrentUser() == null)
             return;
 
         String ertesites = dataBaseHelper.getErtesites();
         String ertesitesIdopont = dataBaseHelper.getErtesitesIdopont();
         String ertesitesMod = dataBaseHelper.getErtesitesMod();
+        Calendar currentDate = Calendar.getInstance();
 
+        if  (currentDate.getTime().getDate() == 10)
+        {
+            ErtesitesKovetkezoHonapMagasabbKiadas(ertesitesIdopont);
+        }
 
         switch (ertesitesMod) {
             case "Rendszer értesítés":
@@ -1036,6 +1032,119 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         }
     }
 
+    private void ErtesitesKovetkezoHonapMagasabbKiadas(String ertesitesIdopont) throws Exception {
+        listaSzamlaDatumokkal.clear();
+
+        Date currentTime = Calendar.getInstance().getTime();
+        Calendar currentDate = Calendar.getInstance();
+
+        List<Szamla> listaElvegzettSzamlak = new ArrayList<>();
+        listaElvegzettSzamlak = dataBaseHelper.AdatbazisbolElvegzettekLekerese(mAuth.getCurrentUser().getEmail());
+
+
+        for (Szamla sz : listaElvegzettSzamlak) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+            Date parsed = null;
+            try {
+                parsed = format.parse(sz.getSzamlaHatarido());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            Date date = new Date(parsed.getTime());
+
+            listaSzamlaDatumokkal.add(new AbstractMap.SimpleEntry<Szamla, Date>(sz, date));
+        }
+
+        for (Szamla sz : listaSzamlak) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+            Date parsed = null;
+            try {
+                parsed = format.parse(sz.getSzamlaHatarido());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            Date date = new Date(parsed.getTime());
+
+            if (date.getYear() == currentDate.getTime().getYear() && date.getMonth() == currentDate.getTime().getMonth()+1) {
+                listaSzamlaDatumokkal.add(new AbstractMap.SimpleEntry<Szamla, Date>(sz, date));
+            }
+        }
+
+
+        Map<Integer, Integer> mapHaviOsszegek = new HashMap<>();
+        Map<Integer, Integer> mapKovetkezoHonapOsszeg = new HashMap<>();
+        currentDate.add(Calendar.MONTH, 1);
+
+
+        for (Map.Entry<Szamla, Date> sz: listaSzamlaDatumokkal)
+        {
+            int honap = sz.getValue().getMonth();
+            if (currentDate.getTime().getMonth() == honap && currentDate.getTime().getYear() == sz.getValue().getYear())
+            {
+                int osszeg = mapKovetkezoHonapOsszeg.containsKey(honap) ? mapKovetkezoHonapOsszeg.get(honap) : 0;
+                osszeg += sz.getKey().getSzamlaOsszeg();
+                mapKovetkezoHonapOsszeg.put(honap, osszeg);
+            }
+            else
+            {
+                int osszeg = mapHaviOsszegek.containsKey(honap) ? mapHaviOsszegek.get(honap) : 0;
+                osszeg += sz.getKey().getSzamlaOsszeg();
+                mapHaviOsszegek.put(honap, osszeg);
+            }
+        }
+
+        if (mapHaviOsszegek.size() == 0)
+            return;
+
+        int sum = 0;
+        int atlag = 0;
+
+        for (int key : mapHaviOsszegek.keySet())
+        {
+            sum += mapHaviOsszegek.get(key);
+        }
+
+        atlag = sum/mapHaviOsszegek.size();
+        sum = 0;
+
+        for (int key : mapKovetkezoHonapOsszeg.keySet())
+        {
+            sum += mapKovetkezoHonapOsszeg.get(key);
+        }
+
+        atlag = (int) (atlag*1.2);
+
+        if (sum > atlag)
+        {
+            String clock;
+
+            if (String.valueOf(currentTime.getMinutes()).length() == 1)
+            {
+                clock = String.valueOf(currentTime.getHours()) + "0" + String.valueOf(currentTime.getMinutes());
+            }
+            else
+            {
+                clock = String.valueOf(currentTime.getHours()) + String.valueOf(currentTime.getMinutes());
+            }
+
+            if (clock.equals(ertesitesIdopont))
+            {
+                if (dataBaseHelper.getErtesitesMod().equals("Rendszer értesítés"))
+                {
+                    ErtesitesKuldesFigyelmeztetes();
+                }
+                else if (dataBaseHelper.getErtesitesMod().equals("E-mail"))
+                {
+                    EmailKuldesFigyelmeztetes();
+                }
+                else
+                {
+                    ErtesitesKuldesFigyelmeztetes();
+                    EmailKuldesFigyelmeztetes();
+                }
+            }
+        }
+    }
 
 
     private void ErtesitesSwitchEmailErtesites(String ertesites, String ertesitesIdopont) {
@@ -1043,6 +1152,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
 
         Date currentTime = Calendar.getInstance().getTime();
         Calendar currentDate = Calendar.getInstance();
+
 
         for (Szamla sz : listaSzamlak) {
             SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
@@ -1078,7 +1188,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
                     {
-                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDay() == currentDate.getTime().getDay())
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDate() == currentDate.getTime().getDate())
                         {
                             szamlaCounter++;
                         }
@@ -1102,7 +1212,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
                     {
-                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDay() == currentDate.getTime().getDate())
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDate() == currentDate.getTime().getDate())
                         {
                             szamlaCounter++;
                         }
@@ -1126,7 +1236,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
                     {
-                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDay() == currentDate.getTime().getDay())
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDate() == currentDate.getTime().getDate())
                         {
                             szamlaCounter++;
                         }
@@ -1181,6 +1291,16 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 fromPassword, toEmails, emailSubject, emailBody);
     }
 
+    private void EmailKuldesFigyelmeztetes() throws Exception
+    {
+        String fromEmail = "szamlaalkalmazas@gmail.com";
+        String fromPassword = "SzamlaAlkalmazas1";
+        String toEmails = mAuth.getCurrentUser().getEmail();
+        String emailSubject = "Figyelem!";
+        String emailBody = "Következő hónapban magasabb kiadás várható.";
+        new SendMailTask(getActivity()).execute(fromEmail,
+                fromPassword, toEmails, emailSubject, emailBody);
+    }
 
     public void ErtesitesSwitchRendszerErtesites(String ertesites, String ertesitesIdopont)
     {
@@ -1225,7 +1345,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
                     {
-                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDay() == currentDate.getTime().getDay())
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDate() == currentDate.getTime().getDate())
                         {
                             szamlaCounter++;
                         }
@@ -1246,7 +1366,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
                     {
-                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDay() == currentDate.getTime().getDate())
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDate() == currentDate.getTime().getDate())
                         {
                             szamlaCounter++;
                         }
@@ -1266,7 +1386,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 {
                     for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
                     {
-                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDay() == currentDate.getTime().getDay())
+                        if (sz.getValue().getYear() == currentDate.getTime().getYear() && sz.getValue().getMonth() == currentDate.getTime().getMonth() && sz.getValue().getDate() == currentDate.getTime().getDate())
                         {
                             szamlaCounter++;
                         }
@@ -1323,7 +1443,44 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         mNotificationManager =
                 (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // === Removed some obsoletes
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            String channelId = "channel1";
+            NotificationChannel channel = new NotificationChannel(
+                    channelId,
+                    "Számla értesítés",
+                    NotificationManager.IMPORTANCE_HIGH);
+            mNotificationManager.createNotificationChannel(channel);
+            mBuilder.setChannelId(channelId);
+        }
+
+        mNotificationManager.notify(0, mBuilder.build());
+
+        Log.d("timeChangedReceiver", "Notification lefutott");
+    }
+
+    public void ErtesitesKuldesFigyelmeztetes()
+    {
+        NotificationManager mNotificationManager;
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getActivity().getApplicationContext(), "notify_001");
+        Intent ii = new Intent(getActivity().getApplicationContext(), KezdolapFragment.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getActivity(), 0, ii, 0);
+
+        mBuilder.setContentIntent(pendingIntent)
+                .setContentTitle("Figyelem!")
+                .setContentText("Következő hónapban magasabb kiadás várható.")
+                .setSmallIcon(R.drawable.szamla)
+                .setPriority(Notification.PRIORITY_MAX)
+                .setSound(Uri.parse("android.resource://"
+                        + getActivity().getPackageName() + "/" + R.raw.juntos));
+
+        mNotificationManager =
+                (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         {
             String channelId = "channel1";
