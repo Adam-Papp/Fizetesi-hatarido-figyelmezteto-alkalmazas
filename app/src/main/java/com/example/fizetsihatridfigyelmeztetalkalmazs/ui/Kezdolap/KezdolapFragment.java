@@ -493,7 +493,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         imageViewPipa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "Számla sikeresen elvégzetté jelölve:\n" + adapter.getItem(position).getTetelNev(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Számla sikeresen befizetve:\n" + adapter.getItem(position).getTetelNev(), Toast.LENGTH_LONG).show();
                 dataBaseHelper.ElvegzetteNyilvanitas(adapter.getItem(position));
 
                 listaRecyclerView.remove(position);
