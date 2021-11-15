@@ -1018,6 +1018,11 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
             ErtesitesKovetkezoHonapMagasabbKiadas(ertesitesIdopont);
         }
 
+        if (currentDate.getTime().getDate() == 8)
+        {
+            HonapVegiSzamlaErtesites(ertesitesIdopont);
+        }
+
         switch (ertesitesMod) {
             case "Rendszer értesítés":
                 ErtesitesSwitchRendszerErtesites(ertesites, ertesitesIdopont);
@@ -1029,6 +1034,69 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 ErtesitesSwitchRendszerErtesites(ertesites, ertesitesIdopont);
                 ErtesitesSwitchEmailErtesites(ertesites, ertesitesIdopont);
                 break;
+        }
+    }
+
+    private void HonapVegiSzamlaErtesites(String ertesitesIdopont) throws Exception {
+        listaSzamlaDatumokkal.clear();
+
+        Date currentTime = Calendar.getInstance().getTime();
+        Calendar currentDate = Calendar.getInstance();
+
+        for (Szamla sz : listaSzamlak) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+            Date parsed = null;
+            try {
+                parsed = format.parse(sz.getSzamlaHatarido());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            Date date = new Date(parsed.getTime());
+
+            listaSzamlaDatumokkal.add(new AbstractMap.SimpleEntry<Szamla, Date>(sz, date));
+        }
+
+        String szamlak = "";
+        int szamlakCounter = 0;
+        int szamlakSumOsszeg = 0;
+
+        for (Map.Entry<Szamla, Date> sz : listaSzamlaDatumokkal)
+        {
+            if (sz.getValue().getDate() >= 25 && currentDate.getTime().getYear() == sz.getValue().getYear() && currentDate.getTime().getMonth() == sz.getValue().getMonth())
+            {
+                szamlakCounter++;
+                szamlak += (szamlak == "" ? sz.getKey().getTetelNev() : ", " + sz.getKey().getTetelNev());
+                szamlakSumOsszeg += sz.getKey().getSzamlaOsszeg();
+            }
+        }
+
+
+        if (szamlakCounter != 0)
+        {
+            String clock;
+
+            if (String.valueOf(currentTime.getMinutes()).length() == 1) {
+                clock = String.valueOf(currentTime.getHours()) + "0" + String.valueOf(currentTime.getMinutes());
+            } else {
+                clock = String.valueOf(currentTime.getHours()) + String.valueOf(currentTime.getMinutes());
+            }
+
+            if (clock.equals(ertesitesIdopont))
+            {
+                if (dataBaseHelper.getErtesitesMod().equals("Rendszer értesítés"))
+                {
+                    ErtesitesKuldesHonapVegiSzamla(szamlakCounter, szamlak, szamlakSumOsszeg);
+                }
+                else if (dataBaseHelper.getErtesitesMod().equals("E-mail"))
+                {
+                    EmailKuldesHonapVegiSzamla(szamlakCounter, szamlak, szamlakSumOsszeg);
+                }
+                else
+                {
+                    ErtesitesKuldesHonapVegiSzamla(szamlakCounter, szamlak, szamlakSumOsszeg);
+                    EmailKuldesHonapVegiSzamla(szamlakCounter, szamlak, szamlakSumOsszeg);
+                }
+            }
         }
     }
 
@@ -1302,6 +1370,30 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 fromPassword, toEmails, emailSubject, emailBody);
     }
 
+    private void EmailKuldesHonapVegiSzamla(int szamlakCounter, String szamlak, int szamlakSumOsszeg) throws Exception
+    {
+        String fromEmail = "szamlaalkalmazas@gmail.com";
+        String fromPassword = "SzamlaAlkalmazas1";
+        String toEmails = mAuth.getCurrentUser().getEmail();
+        String emailSubject = "Figyelem!";
+        String valuta = dataBaseHelper.getValuta(mAuth.getCurrentUser().getEmail());
+        String emailBody = "";
+        if (valuta.equals("HUF"))
+        {
+            emailBody = "Hónap végén " + szamlakCounter + "db befizetendő számla lesz:\n" + szamlak + "\nÖsszesített díj: " + szamlakSumOsszeg + " Ft";
+        }
+        else if (valuta.equals("EUR"))
+        {
+            emailBody = "Hónap végén " + szamlakCounter + "db befizetendő számla lesz:\n" + szamlak + "\nÖsszesített díj: € " + szamlakSumOsszeg;
+        }
+        else
+        {
+            emailBody = "Hónap végén " + szamlakCounter + "db befizetendő számla lesz:\n" + szamlak + "\nÖsszesített díj: $ " + szamlakSumOsszeg;
+        }
+        new SendMailTask(getActivity()).execute(fromEmail,
+                fromPassword, toEmails, emailSubject, emailBody);
+    }
+
     public void ErtesitesSwitchRendszerErtesites(String ertesites, String ertesitesIdopont)
     {
         listaSzamlaDatumokkal.clear();
@@ -1476,6 +1568,75 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
                 .setPriority(Notification.PRIORITY_MAX)
                 .setSound(Uri.parse("android.resource://"
                         + getActivity().getPackageName() + "/" + R.raw.juntos));
+
+        mNotificationManager =
+                (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            String channelId = "channel1";
+            NotificationChannel channel = new NotificationChannel(
+                    channelId,
+                    "Számla értesítés",
+                    NotificationManager.IMPORTANCE_HIGH);
+            mNotificationManager.createNotificationChannel(channel);
+            mBuilder.setChannelId(channelId);
+        }
+
+        mNotificationManager.notify(0, mBuilder.build());
+
+        Log.d("timeChangedReceiver", "Notification lefutott");
+    }
+
+    public void ErtesitesKuldesHonapVegiSzamla(int szamlakCounter, String szamlak, int szamlakSumOsszeg)
+    {
+        NotificationManager mNotificationManager;
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getActivity().getApplicationContext(), "notify_001");
+        Intent ii = new Intent(getActivity().getApplicationContext(), KezdolapFragment.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getActivity(), 0, ii, 0);
+
+        String valuta = dataBaseHelper.getValuta(mAuth.getCurrentUser().getEmail());
+        String text = "";
+
+        if (valuta.equals("HUF"))
+        {
+            text = "Hónap végén " + szamlakCounter + "db befizetendő számla lesz:\n" + szamlak + "\nÖsszesített díj: " + szamlakSumOsszeg + " Ft";
+            mBuilder.setContentIntent(pendingIntent)
+                    .setContentTitle("Figyelem!")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
+                    .setContentText(text)
+                    .setSmallIcon(R.drawable.szamla)
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setSound(Uri.parse("android.resource://"
+                            + getActivity().getPackageName() + "/" + R.raw.juntos));
+        }
+        else if (valuta.equals("EUR"))
+        {
+            text = "Hónap végén " + szamlakCounter + "db befizetendő számla lesz:\n" + szamlak + "\nÖsszesített díj: € " + szamlakSumOsszeg;
+            mBuilder.setContentIntent(pendingIntent)
+                    .setContentTitle("Figyelem!")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
+                    .setContentText(text)
+                    .setSmallIcon(R.drawable.szamla)
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setSound(Uri.parse("android.resource://"
+                            + getActivity().getPackageName() + "/" + R.raw.juntos));
+        }
+        else
+        {
+            text = "Hónap végén " + szamlakCounter + "db befizetendő számla lesz:\n" + szamlak + "\nÖsszesített díj: $ " + szamlakSumOsszeg;
+            mBuilder.setContentIntent(pendingIntent)
+                    .setContentTitle("Figyelem!")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
+                    .setContentText(text)
+                    .setSmallIcon(R.drawable.szamla)
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setSound(Uri.parse("android.resource://"
+                            + getActivity().getPackageName() + "/" + R.raw.juntos));
+        }
 
         mNotificationManager =
                 (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
