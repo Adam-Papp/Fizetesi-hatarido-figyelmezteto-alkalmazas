@@ -86,21 +86,46 @@ public class BeallitasokFragment extends Fragment {
         buttonMentes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressBarBeallitasok.setVisibility(View.VISIBLE);
-                Log.d("beall", "beallitasokmentese lefutott");
-                if (editTextErtesitesIdopontja.getText().toString().length() < 3 )
-                {
-                    editTextErtesitesIdopontja.setError("Érvénytelen időpont!");
-                    editTextErtesitesIdopontja.requestFocus();
-                    return;
-                }
-                else
-                {
-                    dataBaseHelper.BeallitasokMentese(spinnerErtesites.getSelectedItem().toString(), editTextErtesitesIdopontja.getText().toString().replace(":", "")
-                            , spinnerErtesitesiMod.getSelectedItem().toString(), spinnerValuta.getSelectedItem().toString(), auth.getCurrentUser().getEmail());
-                    Toast.makeText(getContext(), "Beállítások sikeresen mentve.", Toast.LENGTH_LONG).show();
-                }
-                progressBarBeallitasok.setVisibility(View.INVISIBLE);
+                AlertDialog.Builder dialogBuilder2 = new AlertDialog.Builder(getContext());
+                Dialog dialog2;
+                final View beallitasokmentesepopup = getLayoutInflater().inflate(R.layout.beallitasokmentesepopup, null);
+                Button buttonIgen6, buttonMegse7;
+
+                buttonIgen6 = beallitasokmentesepopup.findViewById(R.id.buttonIgen6);
+                buttonMegse7 = beallitasokmentesepopup.findViewById(R.id.buttonMegse7);
+
+                dialogBuilder2.setView(beallitasokmentesepopup);
+                dialog2 = dialogBuilder2.create();
+                dialog2.show();
+
+                buttonMegse7.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog2.cancel();
+                    }
+                });
+
+                buttonIgen6.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        progressBarBeallitasok.setVisibility(View.VISIBLE);
+                        Log.d("beall", "beallitasokmentese lefutott");
+                        if (editTextErtesitesIdopontja.getText().toString().length() < 3 )
+                        {
+                            editTextErtesitesIdopontja.setError("Érvénytelen időpont!");
+                            editTextErtesitesIdopontja.requestFocus();
+                            return;
+                        }
+                        else
+                        {
+                            dataBaseHelper.BeallitasokMentese(spinnerErtesites.getSelectedItem().toString(), editTextErtesitesIdopontja.getText().toString().replace(":", "")
+                                    , spinnerErtesitesiMod.getSelectedItem().toString(), spinnerValuta.getSelectedItem().toString(), auth.getCurrentUser().getEmail());
+                            Toast.makeText(getContext(), "Beállítások sikeresen mentve.", Toast.LENGTH_LONG).show();
+                        }
+                        progressBarBeallitasok.setVisibility(View.INVISIBLE);
+                        dialog2.dismiss();
+                    }
+                });
             }
         });
 
