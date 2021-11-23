@@ -494,7 +494,6 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
         imageViewPipa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO megerősítő ablak
 
                 AlertDialog.Builder dialogBuilder2 = new AlertDialog.Builder(getContext());
                 Dialog dialog2;
@@ -1023,6 +1022,7 @@ public class KezdolapFragment extends Fragment implements MyRecyclerViewAdapter.
             listaSzamlak.clear();
             listaSzamlak = dataBaseHelper.AdatbazisbolNemElvegzettekLekerese(mAuth.getCurrentUser().getEmail());
             KitoltesRendezes(spinnerSzures.getSelectedItem().toString());
+            Toast.makeText(getContext(), "Számla sikeresen törölve.", Toast.LENGTH_LONG).show();
             dialog.hide();
         });
 
